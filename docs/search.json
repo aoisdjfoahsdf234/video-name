@@ -12,5 +12,26 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Baseball.html",
+    "href": "Baseball.html",
+    "title": "Baseball",
+    "section": "",
+    "text": "This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.\nWhen you click the Knit button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:\n\nsummary(cars)\n\n     speed           dist       \n Min.   : 4.0   Min.   :  2.00  \n 1st Qu.:12.0   1st Qu.: 26.00  \n Median :15.0   Median : 36.00  \n Mean   :15.4   Mean   : 42.98  \n 3rd Qu.:19.0   3rd Qu.: 56.00  \n Max.   :25.0   Max.   :120.00"
+  },
+  {
+    "objectID": "Baseball.html#r-markdown",
+    "href": "Baseball.html#r-markdown",
+    "title": "Baseball",
+    "section": "",
+    "text": "This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.\nWhen you click the Knit button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:\n\nsummary(cars)\n\n     speed           dist       \n Min.   : 4.0   Min.   :  2.00  \n 1st Qu.:12.0   1st Qu.: 26.00  \n Median :15.0   Median : 36.00  \n Mean   :15.4   Mean   : 42.98  \n 3rd Qu.:19.0   3rd Qu.: 56.00  \n Max.   :25.0   Max.   :120.00"
+  },
+  {
+    "objectID": "Baseball.html#including-plots",
+    "href": "Baseball.html#including-plots",
+    "title": "Baseball",
+    "section": "Including Plots",
+    "text": "Including Plots\nrandom\nYou can also embed plots, for example:\n\n\n\n\n\n\n\n\n\n\nbatting&lt;-Batting\n\nbatting2000s &lt;- batting |&gt; subset(batting$yearID &gt; 1999)\n\nbatting_filler &lt;- batting |&gt; subset(1949 &lt; batting$yearID) \n\nbatting_50s_70s &lt;- batting_filler |&gt; subset(batting_filler$yearID &lt; 1980)\n\nbatting_modern &lt;- batting2000s |&gt; subset(batting2000s$AB &gt; 400)\n\nbatting_old &lt;- batting_50s_70s |&gt; subset(batting_50s_70s$AB &gt; 400)\n\nbatting_modern_final &lt;- batting_modern |&gt; subset(batting_modern$G &gt; 100)\n\nbatting_old_final &lt;- batting_old |&gt; subset(batting_old$G &gt; 100) |&gt; \n\nsummary(batting_old_final$HR)\n\nsummary(batting_modern_final$HR)\n\nbatting_old_final$Salary_Z &lt;- scale(df$my_column)\n\n\nBBBBBB&lt;-Salaries\n\nNote that the echo = FALSE parameter was added to the code chunk to prevent printing of the R code that generated the plot."
   }
 ]
