@@ -8,60 +8,961 @@ date: "2025-05-13"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+The first thing that I need to do is define my eras of baseball. Since the salary database only goes back to 1985, I divided my old and new eras into 15 year windows from 1985-2000 and 2001-2016
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+library(Lahman)
+library(tidyverse)
+library(tidymodels)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+salaries <- Salaries |>
+  dplyr::select(playerID, yearID, teamID, salary)
+peopleInfo <- People |>
+  dplyr::select(playerID, birthYear, birthMonth, nameLast,
+         nameFirst, bats)
+batting <- battingStats() |>
+  left_join(salaries, 
+            by =c("playerID", "yearID", "teamID")) |>
+  left_join(peopleInfo, by = "playerID") |>
+  mutate(age = yearID - birthYear - 
+           1L *(birthMonth >= 10)) |>
+  arrange(playerID, yearID, stint)
 
-```{r cars}
-summary(cars)
-```
+batting_older <- batting |> filter(G >= 100, AB >= 200, 2001 > yearID, yearID > 1984) |>
+  mutate(lgID = factor(lgID, levels = c("AL", "NL"))) # fix the defunct league issue
 
-## Including Plots
-
-random
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-```{r, eval=FALSE}
-
-
-batting<-Batting
-
-batting2000s <- batting |> subset(batting$yearID > 1999)
-
-batting_filler <- batting |> subset(1949 < batting$yearID) 
-
-batting_50s_70s <- batting_filler |> subset(batting_filler$yearID < 1980)
-
-batting_modern <- batting2000s |> subset(batting2000s$AB > 400)
-
-batting_old <- batting_50s_70s |> subset(batting_50s_70s$AB > 400)
-
-batting_modern_final <- batting_modern |> subset(batting_modern$G > 100)
-
-batting_old_final <- batting_old |> subset(batting_old$G > 100) |> 
-
-summary(batting_old_final$HR)
-
-summary(batting_modern_final$HR)
-
-batting_old_final$Salary_Z <- scale(df$my_column)
-
-
+batting_older <- batting_older |>
+  mutate(team_payroll = case_when(
+    teamID %in% c("ANA", "BOS", "CAL", "LAN", "NYA", "NYN", "PHI", "LAA") ~ "top",
+    teamID %in% c("CHA", "CHN", "DET", "SEA", "SFN", "SLN") ~ "upper",
+    teamID %in% c("ATL", "CIN", "HOU", "MON", "TEX", "TOR") ~ "middle",
+    teamID %in% c("ARI", "BAL", "COL", "MIN", "ML4", "SDN") ~ "lower",
+    teamID %in% c("CLE", "FLO", "KCA", "OAK", "PIT", "TBA") ~ "bottom",
+    TRUE ~ NA_character_  # Optional: catch all others as NA
+  ))
 
 ```
 
-```{r, eval=FALSE}
 
-BBBBBB<-Salaries
+```{r}
+
+bat_old_proto <- batting_older |>
+  transmute(
+    Name = paste(nameFirst, nameLast),
+    Year = yearID,
+    team_payroll = team_payroll,
+    PA = PA,
+    BA = BA,
+    HR = HR,
+    R = R,
+    RBI = RBI,
+    age=age,
+    salary=salary,
+    SlugPct = SlugPct,
+    OBP = OBP, # these 3 are already rate stats
+    BBRate = BB/PA, # walks per time at the plate
+    SORate = SO/PA, # strikeouts per time at the plate
+    DoubleRate = X2B/PA,
+    TripleRate = X3B/PA,
+    HRRate = HR/PA,
+    RRate = R/PA,
+    RBIRate = RBI/PA,
+    SBRate = SB/PA,
+    SBSuccessRate = SB/(pmax(SB + CS, 1)), # to avoid NaN
+    bats,
+    lgID # just to have some categorical variables here
+  )
+```
+
+I modified the database a little bit to include stats that were not originally included including RBI rate and OPS, but now I am going to take Runs, RBI's, and HR's and turn them into a single variable that I will call PC_Score to combine 3 stats that are all directly related to each other into a single variable because a HR is also counted in the stat column as a Run(R) and an RBI.
+
+```{r}
+pca_recipe <- recipe(
+  ~ Name + Year + HR + RBI + R, data = bat_old_proto
+) |>
+## ~ . indicates to use all variables in the dataset as predictors
+  update_role(c(Name, Year), new_role = "id") |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_pca(all_predictors(), num_comp = 10)
+```
+
+```{r}
+pca_prep <- pca_recipe |>
+  prep()
+pca_prep
+```
+
+```{r}
+pca_baked <- pca_prep |>
+  bake(new_data = NULL)
+pca_baked
 
 ```
+
+```{r}
+pca_tidy <- tidy(pca_prep, 3, type = "coef") # tidy step 3 - the PCA step
+head(pca_tidy, 20)
+```
+
+
+```{r}
+bat_old_proto <- bat_old_proto |> 
+  merge(pca_baked, 
+            by =c("Name", "Year"))
+
+```
+
+```{r}
+bat_old_proto <- bat_old_proto |>
+  transmute(
+    Name = Name,
+    Year = Year,
+    team_payroll = team_payroll,
+    PA = PA,
+    BA = BA,
+    HR = HR,
+    age=age,
+    salary=salary,
+    R = R,
+    RBI = RBI,
+    SlugPct = SlugPct,
+    OBP = OBP, # these 3 are already rate stats
+    BBRate = BBRate, # walks per time at the plate
+    SORate = SORate, # strikeouts per time at the plate
+    DoubleRate = DoubleRate,
+    TripleRate = TripleRate,
+    HRRate = HRRate,
+    RRate = RRate,
+    RBIRate = RBIRate,
+    SBRate = SBRate,
+    SBSuccessRate = SBSuccessRate,
+    PC_score=PC1,
+    PC1=PC1,
+    PC2=PC2,
+    PC3=PC3,
+    OPS=OBP + SlugPct,
+    # to avoid NaN
+    bats,
+    lgID # just to have some categorical variables here
+  )
+```
+
+Now, I wanted to take the salary variable and turn it into a z-score to account for the change in salary due to inflation. i.e. I don't want inflation to undermine what I am trying to accomplish comparing eras because an increase in nominal salary could easily just be a function of inflation of the dollar and nothing related to the skill of the player.
+
+```{r}
+bat_old <- bat_old_proto |>
+  group_by(Year) |>
+  mutate(Salary_ZScore = scale(salary) |> as.vector()) |>
+  ungroup()
+```
+
+```{r}
+pca_tidy <- tidy(pca_prep, 3, type = "coef") # tidy step 3 - the PCA step
+head(pca_tidy, 20)
+
+pca_loadings <- pca_tidy |>
+  pivot_wider(names_from = "component",
+              values_from = "value") |>
+  dplyr::select(!id)
+arrange(pca_loadings, desc(abs(PC1)))
+arrange(pca_loadings, desc(abs(PC2)))
+```
+
+```{r}
+library(Lahman)
+library(tidyverse)
+library(tidymodels)
+
+salaries <- Salaries %>%
+  dplyr::select(playerID, yearID, teamID, salary)
+peopleInfo <- People %>%
+  dplyr::select(playerID, birthYear, birthMonth, nameLast,
+         nameFirst, bats)
+batting <- battingStats() %>% 
+  left_join(salaries,
+            by =c("playerID", "yearID", "teamID")) %>%
+  left_join(peopleInfo, by = "playerID") %>%
+  mutate(age = yearID - birthYear - 
+           1L *(birthMonth >= 10)) %>%
+  arrange(playerID, yearID, stint)
+
+batting_new <- batting %>% filter(G >= 100, AB >= 200, 2017 > yearID, yearID > 2000) %>%
+  mutate(lgID = factor(lgID, levels = c("AL", "NL"))) # fix the defunct league issue
+
+batting_new <- batting_new |>
+  mutate(team_payroll = case_when(
+    teamID %in% c("ANA", "BOS", "CAL", "LAN", "NYA", "NYN", "PHI", "LAA") ~ "top",
+    teamID %in% c("CHA", "CHN", "DET", "SEA", "SFN", "SLN") ~ "upper",
+    teamID %in% c("ATL", "CIN", "HOU", "MON", "TEX", "TOR") ~ "middle",
+    teamID %in% c("ARI", "BAL", "COL", "MIN", "ML4", "SDN") ~ "lower",
+    teamID %in% c("CLE", "FLO", "KCA", "OAK", "PIT", "TBA") ~ "bottom",
+    TRUE ~ NA_character_  # Optional: catch all others as NA
+  ))
+
+```
+
+```{r}
+bat_new_proto <- batting_new |>
+  transmute(
+    Name = paste(nameFirst, nameLast),
+    Year = yearID,
+    team_payroll = team_payroll,
+    PA = PA,
+    BA = BA,
+    HR = HR,
+    R = R,
+    RBI = RBI,
+    age=age,
+    salary=salary,
+    SlugPct = SlugPct,
+    OBP = OBP, # these 3 are already rate stats
+    BBRate = BB/PA, # walks per time at the plate
+    SORate = SO/PA, # strikeouts per time at the plate
+    DoubleRate = X2B/PA,
+    TripleRate = X3B/PA,
+    HRRate = HR/PA,
+    RRate = R/PA,
+    RBIRate = RBI/PA,
+    SBRate = SB/PA,
+    SBSuccessRate = SB/(pmax(SB + CS, 1)), # to avoid NaN
+    bats,
+    lgID # just to have some categorical variables here
+  )
+```
+
+```{r}
+pca_recipe_new <- recipe(
+  ~ Name + Year + HR + RBI + R, data = bat_new_proto
+) |>
+## ~ . indicates to use all variables in the dataset as predictors
+  update_role(c(Name, Year), new_role = "id") |>
+  step_normalize(all_numeric_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_pca(all_predictors(), num_comp = 10)
+```
+
+```{r}
+pca_prep_new <- pca_recipe_new |>
+  prep()
+pca_prep_new
+
+pca_baked_new <- pca_prep_new |>
+  bake(new_data = NULL)
+pca_baked_new
+
+bat_new_proto <- bat_new_proto |> 
+  merge(pca_baked_new, 
+            by =c("Name", "Year"))
+```
+
+Looking at the top of the list and seeing the heaviest hitters Barry Bonds, Sammy Sosa, and Alex Rodriguez on the list, gave me the idea that the list made sense. I also looked for a player like Ichiro, one of the most talented contact hitters, to see how he would be evaluated. Given that he was placed in the upper-middle of the pack, it made sense that he would not be featured with the heaviest sluggers in the league.
+
+```{r}
+bat_new_proto <- bat_new_proto |>
+  transmute(
+    Name = Name,
+    Year = Year,
+    team_payroll = team_payroll,
+    PA = PA,
+    BA = BA,
+    HR = HR,
+    age=age,
+    salary=salary,
+    R = R,
+    RBI = RBI,
+    SlugPct = SlugPct,
+    OBP = OBP, # these 3 are already rate stats
+    BBRate = BBRate, # walks per time at the plate
+    SORate = SORate, # strikeouts per time at the plate
+    DoubleRate = DoubleRate,
+    TripleRate = TripleRate,
+    HRRate = HRRate,
+    RRate = RRate,
+    RBIRate = RBIRate,
+    SBRate = SBRate,
+    SBSuccessRate = SBSuccessRate,
+    PC_score=PC1,
+    PC1=PC1,
+    PC2=PC2,
+    PC3=PC3,
+    OPS=OBP + SlugPct,
+    # to avoid NaN
+    bats,
+    lgID # just to have some categorical variables here
+  )
+```
+
+```{r}
+bat_new <- bat_new_proto |>
+  group_by(Year) |>
+  mutate(Salary_ZScore = scale(salary) |> as.vector()) |>
+  ungroup()
+
+pca_tidy_new <- tidy(pca_prep_new, 3, type = "coef") # tidy step 3 - the PCA step
+head(pca_tidy_new, 20)
+
+pca_loadings_new <- pca_tidy_new |>
+  pivot_wider(names_from = "component",
+              values_from = "value") |>
+  dplyr::select(!id)
+arrange(pca_loadings_new, desc(abs(PC1)))
+arrange(pca_loadings_new, desc(abs(PC2)))
+```
+
+
+```{r}
+bat_old <- bat_old |>
+  drop_na(Salary_ZScore)
+
+bat_new <- bat_new |>
+  drop_na(Salary_ZScore)
+
+n<-nrow(bat_old)
+m<-nrow(bat_new)
+
+indices_old<-sample(n, 0.8*floor(n), replace=F)
+indices_new<-sample(m, 0.8*floor(m), replace=F)
+
+test_old<- bat_old[-indices_old, ]
+train_old<- bat_old[indices_old, ]
+
+test_new<- bat_new[-indices_new, ]
+train_new <- bat_new[indices_new, ]
+```
+
+
+```{r}
+percentiles_BA_old<-quantile(bat_old_proto$BA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1))
+ 
+percentiles_PA_old<-quantile(bat_old_proto$PA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_PC_old<-quantile(bat_old_proto$PC_score, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_SORate_old<-quantile(bat_old_proto$SORate, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_OPS_old<-quantile(bat_old_proto$OPS, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_age_old<-quantile(bat_old_proto$age, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_BA_old
+percentiles_PA_old
+percentiles_PC_old
+percentiles_SORate_old
+percentiles_OPS_old
+percentiles_age_old
+
+
+```
+
+3 metrics that I especially looked at when I wanted to compared these eras were the 25%/50%/75% percentiles of PC_Score, BA, and OPS just to eyeball any significant difference in the offensive numbers of the players.
+
+Old BA 25%: 0.252, 50%: 0.271, 75%: 0.292
+New BA 25%: 0.251, 50%: 0.270, 75%: 0.289
+
+Old OPS 25%: 0.694, 50%: 0.760, 75%: 0.832
+New OPS 25%: 0.703, 50%: 0.765, 75%: 0.831
+
+Old PC_Score 25%: -1.20, 50%: -0.217, 75%: 1.01
+New PC_Score 25%: -1.21, 50%: -0.235, 75%: 1.02
+
+The eras are posting similar offensive numbers in 3 significant statistical categories so this can rule out any possible pay disparity over performance being base on statistics but then I wonder about just the top 10%, 5%, 1% of players to see if there is anything interesting with the outliers.
+
+Old BA 90%: 0.311, 95%: 0.323, 99%: 0.349
+New BA 90%: 0.316, 95%: 0.318, 99%: 0.338
+
+Old OPS 90%: 0.904, 95%: 0.957, 99%: 1.06
+New OPS 90%: 0.899, 95%: 0.950, 99%: 1.04
+
+Old PC_Score 90%: 2.19, 95%: 2.89, 99%: 4.21
+New PC_Score 90%: 2.23, 95%: 2.91, 99%: 4.11
+
+These numbers are very consistent across the board with all the percentiles that I chose and there is no significant distinction between them just based on the eye test, so we can rule out different offensive numbers as a possible cause of any pay disparity.
+
+```{r}
+percentile_BA_new<-quantile(bat_new_proto$BA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1))
+ 
+percentile_PA_new<-quantile(bat_new_proto$PA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentile_PC_new<-quantile(bat_new_proto$PC_score, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentile_SORate_new<-quantile(bat_new_proto$SORate, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentile_OPS_new<-quantile(bat_new_proto$OPS, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentile_age_new<-quantile(bat_new_proto$age, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
+                                                      .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentile_BA_new
+percentile_PA_new
+percentile_PC_new
+percentile_SORate_new
+percentile_OPS_new
+percentile_age_new
+
+```
+And then here are some graphs of the percentiles above to visually show also that they do not appear to be very different from each other.
+
+```{r}
+ecdf(bat_old$BA)
+plot(ecdf(bat_old$BA))
+```
+
+```{r}
+ecdf(bat_old$age)
+plot(ecdf(bat_old$age))
+```
+```{r}
+ecdf(bat_old$PA)
+plot(ecdf(bat_old$PA))
+```
+
+```{r}
+ecdf(bat_old$PC_score)
+plot(ecdf(bat_old$PC_score))
+```
+
+```{r}
+ecdf(bat_old$OPS)
+plot(ecdf(bat_old$OPS))
+```
+
+```{r}
+ecdf(bat_old$SORate)
+plot(ecdf(bat_old$SORate))
+```
+
+```{r}
+ecdf(bat_old$Salary_ZScore)
+plot(ecdf(bat_old$Salary_ZScore))
+```
+```{r}
+ecdf(bat_new$Salary_ZScore)
+plot(ecdf(bat_new$Salary_ZScore))
+```
+
+```{r}
+ecdf(bat_new$BA)
+plot(ecdf(bat_new$BA))
+```
+
+```{r}
+ecdf(bat_new$PA)
+plot(ecdf(bat_new$PA))
+```
+
+```{r}
+ecdf(bat_new$PC_score)
+plot(ecdf(bat_new$PC_score))
+```
+
+```{r}
+ecdf(bat_new$SORate)
+plot(ecdf(bat_new$SORate))
+```
+
+```{r}
+ecdf(bat_new$OPS)
+plot(ecdf(bat_new$OPS))
+```
+
+```{r}
+ecdf(bat_new$age)
+plot(ecdf(bat_new$age))
+```
+
+
+2222222
+
+22222222
+
+22222222
+
+
+2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+
+EXPERIMENT
+
+Briefly plotting the correlation to see if there are any statistics that are worth looking at for similarity to combine into one variable led me to a correlation between OPS and BA, but OPS is a stat that favors heavy hitters and BA features great contact hitters. To make the distinction between these two types of players and the fact that I already have a heavy hitter stat for PC_score, I decided to keep these variables separate to account for this difference. For example, Ichiro was as dominant as he was due to his league leading 0.350+ BA but if you looked at OPS, we was about 0.82, which barely cracks the top 25% of players and he is most definitely a player that was in the top 5% of players in the league and a former league MVP. For this reason, I kept the two metrics separate. 
+
+```{r}
+library(corrplot)
+FLINGO<-bat_new[,c(4,5,7,14,22,26,29)]
+ZINGO<-bat_old[,c(4,5,7,14,22,26,29)]
+
+BLINGO<-cor(ZINGO)
+BINGO<-cor(FLINGO)
+
+corrplot(BINGO, method = "circle", type = "upper",
+         tl.col = "black", tl.srt = 45, addCoef.col = "black")
+
+corrplot(BLINGO, method = "circle", type = "upper",
+         tl.col = "black", tl.srt = 45, addCoef.col = "black")
+
+```
+The scatter plots below I do not believe are particularly relevant to the salary discussion because of how much noise there are in the graphs but to show that they do not really contribute to the salary discussion, I plotted them below to at least see the visual data.
+
+```{r}
+plot(bat_new$BA, bat_new$Salary_ZScore)
+```
+
+```{r}
+plot(bat_new$PA, bat_new$Salary_ZScore)
+```
+
+```{r}
+plot(bat_new$PC_score, bat_new$Salary_ZScore)
+```
+```{r}
+plot(bat_new$OPS, bat_new$Salary_ZScore)
+```
+
+```{r}
+plot(bat_new$SORate, bat_new$Salary_ZScore)
+```
+
+```{r}
+plot(bat_new$age, bat_new$Salary_ZScore)
+```
+
+
+```{r}
+plot(bat_new$BA, bat_new$PA)
+
+```
+
+```{r}
+plot(bat_new$PC_score, bat_new$Salary_ZScore)
+```
+
+
+```{r}
+plot(bat_old$BA, bat_old$PA)
+```
+
+```{r}
+plot(bat_new$BA, bat_new$PC_Score)
+```
+
+```{r}
+plot(bat_old$BA, bat_old$PC_Score)
+```
+```{r}
+plot(bat_old$OPS, bat_old$BA)
+```
+
+
+```{r}
+plot(bat_new$BA, bat_new$OPS)
+```
+
+```{r}
+plot(bat_old$BA, bat_old$SORate)
+```
+
+```{r}
+plot(bat_new$BA, bat_new$SORate)
+```
+
+```{r}
+plot(bat_old$BA, bat_old$age)
+```
+
+```{r}
+plot(bat_new$BA, bat_new$age)
+```
+
+```{r}
+plot(bat_old$PA, bat_old$PC_Score)
+```
+
+```{r}
+plot(bat_new$PA, bat_new$PC_Score)
+```
+
+```{r}
+plot(bat_old$PA, bat_old$OPS)
+```
+
+```{r}
+plot(bat_new$PA, bat_new$OPS)
+```
+
+```{r}
+plot(bat_old$PA, bat_old$SORate)
+```
+
+```{r}
+plot(bat_new$PA, bat_new$SORate)
+```
+
+```{r}
+plot(bat_old$PA, bat_old$age)
+```
+
+```{r}
+plot(bat_new$PA, bat_new$age)
+```
+
+```{r}
+plot(bat_old$PC_score, bat_old$OPS)
+```
+
+```{r}
+plot(bat_new$PC_score, bat_new$OPS)
+```
+
+```{r}
+plot(bat_old$PC_score, bat_old$SORate)
+```
+
+```{r}
+plot(bat_new$PC_score, bat_new$SORate)
+```
+
+```{r}
+plot(bat_old$PC_score, bat_old$age)
+```
+
+```{r}
+plot(bat_new$PC_score, bat_new$age)
+```
+
+```{r}
+plot(bat_old$OPS, bat_old$SORate)
+```
+
+```{r}
+plot(bat_new$OPS, bat_new$SORate)
+```
+
+```{r}
+plot(bat_old$OPS, bat_old$age)
+```
+
+```{r}
+plot(bat_new$OPS, bat_new$age)
+```
+
+```{r}
+plot(bat_old$SORate, bat_old$age)
+```
+
+```{r}
+plot(bat_new$SORate, bat_new$age)
+```
+
+Lastly, I decided to compute a ridge model, one for the old players and one for the new players to see if there was anything that could be observed for the trends of the salaries based on these two eras.
+
+```{r make model using linear regression}
+ridge_model_old <- linear_reg(mode = "regression", engine = "glmnet",
+                          penalty = tune(), # let's tune the lambda penalty term
+                          mixture = 0) # mixture = 0 specifies pure ridge regression
+
+ridge_wflow_old <- workflow() |>
+  add_model(ridge_model_old)
+```
+
+
+```{r make recipe/ combine in workflow}
+ridge_recipe_old <- recipe(
+  Salary_ZScore ~ BA + PA + PC_score + OPS + SORate + age, # response ~ predictors
+  data = train_old
+) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_numeric_predictors()) |> # don't scale the response
+  step_dummy(all_nominal_predictors())
+
+ridge_wflow_old <- ridge_wflow_old |>
+  add_recipe(ridge_recipe_old)
+```
+
+```{r}
+set.seed(1332)
+batting_cv_old <- vfold_cv(train_old, v = 10)
+
+ridge_tune_old <- tune_grid(ridge_model_old, 
+                         ridge_recipe_old,
+                      resamples = batting_cv_old, 
+                      grid = grid_regular(penalty(range = c(-2, 2)), levels = 50))
+```
+
+```{r tune model}
+ridge_tune_old |>
+  collect_metrics() |>
+  filter(.metric == "rmse") |>
+  ggplot(mapping = aes(x = penalty, y = mean)) + geom_point() + geom_line() +
+  scale_x_log10()
+```
+
+```{r get lambda from the tuned model}
+ridge_best_old <- ridge_tune_old |>
+  select_by_one_std_err(
+    metric = "rmse",
+    desc(penalty) # order penalty from largest (highest bias = simplest model) to smallest
+)
+ridge_best_old
+
+ridge_wflow_final_old <- ridge_wflow_old |>
+  finalize_workflow(parameters = ridge_best_old) 
+
+ridge_wflow_final_old <- fit(ridge_wflow_final_old, data=train_old) 
+ridge_wflow_final_old
+```
+
+```{r add lambda to workflow}
+ridge_pred_check_old <- ridge_wflow_final_old |>
+  fit_resamples(
+    resamples = batting_cv_old,
+    # save the cross-validated predictions
+    control = control_resamples(save_pred = TRUE)
+) |> 
+  collect_predictions()
+
+# using built-in defaults from probably
+library(ggplot2)
+
+# Assume y_actual and y_pred are your actual and predicted values
+df <- data.frame(test_old, y_pred = predict(ridge_wflow_final_old, new_data = test_old))
+
+ggplot(df, aes(x = .pred, y = Salary_ZScore)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE, color = "blue") +
+  labs(title = "Calibration Plot", x = "Predicted", y = "Actual") +
+  theme_minimal()
+```
+
+
+```{r run model with train data}
+ridge_fit_old <- ridge_wflow_final_old |>
+  fit(data = train_old)
+ridge_fit_old
+```
+
+```{r plot lambdas}
+ridge_fit_old |>
+  extract_fit_engine() |>
+  plot(xvar = "lambda", label = TRUE)
+```
+
+```{r get c-oefficients}
+ridge_coef_old <- ridge_fit_old |>
+  broom::tidy()
+ridge_coef_old
+```
+
+```{r make predictions}
+predictions_ridge_old <- ridge_fit_old |>
+  broom::augment(new_data = test_old)
+predictions_ridge_old |>
+  dplyr::select(Name,
+                Salary_ZScore,
+    
+    everything()
+)
+
+rmse(predictions_ridge_old, truth = Salary_ZScore, estimate = .pred)
+
+
+```
+
+```{r}
+predictions_ridge_old_new <- ridge_fit_old |>
+  broom::augment(new_data = test_new)
+predictions_ridge_old_new |>
+  dplyr::select(Name,
+                Salary_ZScore,
+    
+    everything()
+)
+
+rmse(predictions_ridge_old_new, truth = Salary_ZScore, estimate = .pred)
+
+```
+
+
+```{r}
+ridge_model_new <- linear_reg(mode = "regression", engine = "glmnet",
+                          penalty = tune(), # let's tune the lambda penalty term
+                          mixture = 0) # mixture = 0 specifies pure ridge regression
+
+ridge_wflow_new <- workflow() |>
+  add_model(ridge_model_new)
+```
+
+```{r}
+ridge_recipe_new <- recipe(
+  Salary_ZScore ~ BA + PA + PC_score + OPS + SORate + age, # response ~ predictors
+  data = train_new
+) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_normalize(all_numeric_predictors()) |> # don't scale the response
+  step_dummy(all_nominal_predictors())
+
+ridge_wflow_new <- ridge_wflow_new |>
+  add_recipe(ridge_recipe_new)
+```
+
+```{r}
+set.seed(1332)
+batting_cv_new <- vfold_cv(train_new, v = 10)
+
+ridge_tune_new <- tune_grid(ridge_model_new, 
+                         ridge_recipe_new,
+                      resamples = batting_cv_new, 
+                      grid = grid_regular(penalty(range = c(-1, 2.5)), levels = 50))
+```
+
+```{r}
+ridge_tune_new |>
+  collect_metrics() |>
+  filter(.metric == "rmse") |>
+  ggplot(mapping = aes(x = penalty, y = mean)) + geom_point() + geom_line() +
+  scale_x_log10()
+```
+
+```{r}
+ridge_best_new <- ridge_tune_new |>
+  select_by_one_std_err(
+    metric = "rmse",
+    desc(penalty) # order penalty from largest (highest bias = simplest model) to smallest
+)
+ridge_best_new
+
+ridge_wflow_final_new <- ridge_wflow_new |>
+  finalize_workflow(parameters = ridge_best_new) 
+
+ridge_wflow_final_new <- fit(ridge_wflow_final_new, data=train_new) 
+```
+
+```{r}
+ridge_pred_check_new <- ridge_wflow_final_new |>
+  fit_resamples(
+    resamples = batting_cv_new,
+    # save the cross-validated predictions
+    control = control_resamples(save_pred = TRUE)
+) |> 
+  collect_predictions()
+
+# using built-in defaults from probably
+library(ggplot2)
+
+# Assume y_actual and y_pred are your actual and predicted values
+df <- data.frame(test_new, y_pred = predict(ridge_wflow_final_new, new_data = test_new))
+
+ggplot(df, aes(x = .pred, y = Salary_ZScore)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "loess", se = FALSE, color = "blue") +
+  labs(title = "Calibration Plot", x = "Predicted", y = "Actual") +
+  theme_minimal()
+```
+
+
+```{r}
+ridge_fit_new <- ridge_wflow_final_new |>
+  fit(data = train_new)
+ridge_fit_new
+```
+
+```{r}
+ridge_fit_new |>
+  extract_fit_engine() |>
+  plot(xvar = "lambda", label = TRUE)
+```
+
+```{r}
+ridge_coef_new <- ridge_fit_new |>
+  broom::tidy()
+ridge_coef_new
+```
+
+```{r}
+predictions_ridge_new <- ridge_fit_new |>
+  broom::augment(new_data = test_new)
+predictions_ridge_new |>
+  dplyr::select(
+    Name,
+    Salary_ZScore, 
+    .pred,
+    everything()
+)
+
+predictions_ridge_old_new |>
+  dplyr::select(
+    Name,
+    Salary_ZScore, 
+    .pred,
+    everything()
+)
+
+rmse(predictions_ridge_new, truth = Salary_ZScore, estimate = .pred)
+rmse(predictions_ridge_old_new, truth = Salary_ZScore, estimate = .pred)
+```
+
+
+```{r}
+predictions_ridge_new_old <- ridge_fit_new |>
+  broom::augment(new_data = test_old)
+predictions_ridge_new_old |>
+  dplyr::select(
+    Name,
+    Salary_ZScore, 
+    .pred,
+    everything()
+)
+predictions_ridge_old |>
+  dplyr::select(
+    Name,
+    Salary_ZScore, 
+    .pred,
+    everything()
+)
+
+rmse(predictions_ridge_new_old, truth = Salary_ZScore, estimate = .pred)
+```
+
+Lastly, what I did was compare the old model to the new model. We did this by plugging the test_old into both models to see which model predicted a higher value and we also plugged the test_new into both models to see which model predicted the higher values. As it turned out, there was a difference between the models and the older model predicted higher salary z-scores for both models indicating that the older players are predicted to be payed more than the new players thus showing that there is a significant pay disparity between the older group of players during the steroid era and the newer group of players.
+
+Examples of some of these numbers
+
+Albert Pujoles 2002 (Old model prediction: 0.26) (New model prediction: 0.14)
+Albert Pujoles 2008 (Old model prediction: 0.79) (New model prediction: 0.74)
+Albert Pujoles 2009 (Old model prediction: 1.26) (New model prediction: 1.07)
+Albert Pujoles 2015 (Old model prediction: 1.29) (New model prediction: 0.99)
+Albert Pujoles 2016 (Old model prediction: 1.24) (New model prediction: 1.02)
+
+Alex Rodriguez 2003 (Old model prediction: 0.95) (New model prediction: 0.82)
+Alex Rodriguez 2006 (Old model prediction: 0.93) (New model prediction: 0.84)
+Alex Rodriguez 2008 (Old model prediction: 0.95) (New model prediction: 0.92)
+
+```{r}
+groupA<-predictions_ridge_old_new$.pred
+groupB<-predictions_ridge_new$.pred
+
+
+t.test(groupA, groupB, var.equal = FALSE)
+
+```
+
+```{r}
+group1<-predictions_ridge_old$.pred
+group2<-predictions_ridge_new_old$.pred
+
+t.test(group1, group2, var.equal = FALSE)
+```
+However, upon further inspection of the entire dataset and not just the outliers, we see in a two sample t.test that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old dataset and the new dataset have no significant difference in stats but adjusting for inflation no significant differences in salaries as well.
 
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -3,13 +3,13 @@ project:
   output-dir: docs
 
 website:
-  title: "video-name"
+  title: "Statistical_modeling"
   navbar:
     left:
       - href: index.qmd
         text: Home
       - href: Baseball.Rmd
-        text: This is wwhat they clcik on to get to my project
+        text: Baseball Project
 
 format:
   html:
