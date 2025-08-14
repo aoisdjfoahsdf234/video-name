@@ -1,6 +1,6 @@
 ---
-title: "Brian"
-subtitle: "Data Science"
+title: "Baseball Analytics"
+subtitle: "Comparing salaries from different eras"
 # 'nameofphoto.jpg' photo by Person Last name on website.org
 #https://https://kids.nationalgeographic.com/animals/birds/facts/mallard-duck
 #image: "profile.jpg"
@@ -16,10 +16,6 @@ subtitle: "Data Science"
 
 ---
 
-This is a Quarto website.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Brian's website
+https://websitename_name_html
