@@ -378,15 +378,15 @@ id:        2</code></pre>
 <pre><code># A tibble: 9 × 4
   terms  value component id       
   &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
-1 HR     0.584 PC1       pca_XJeKD
-2 RBI    0.607 PC1       pca_XJeKD
-3 R      0.539 PC1       pca_XJeKD
-4 HR     0.518 PC2       pca_XJeKD
-5 RBI    0.232 PC2       pca_XJeKD
-6 R     -0.823 PC2       pca_XJeKD
-7 HR     0.625 PC3       pca_XJeKD
-8 RBI   -0.760 PC3       pca_XJeKD
-9 R      0.178 PC3       pca_XJeKD</code></pre>
+1 HR     0.584 PC1       pca_nBtzL
+2 RBI    0.607 PC1       pca_nBtzL
+3 R      0.539 PC1       pca_nBtzL
+4 HR     0.518 PC2       pca_nBtzL
+5 RBI    0.232 PC2       pca_nBtzL
+6 R     -0.823 PC2       pca_nBtzL
+7 HR     0.625 PC3       pca_nBtzL
+8 RBI   -0.760 PC3       pca_nBtzL
+9 R      0.178 PC3       pca_nBtzL</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -446,15 +446,15 @@ id:        2</code></pre>
 <pre><code># A tibble: 9 × 4
   terms  value component id       
   &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
-1 HR     0.584 PC1       pca_XJeKD
-2 RBI    0.607 PC1       pca_XJeKD
-3 R      0.539 PC1       pca_XJeKD
-4 HR     0.518 PC2       pca_XJeKD
-5 RBI    0.232 PC2       pca_XJeKD
-6 R     -0.823 PC2       pca_XJeKD
-7 HR     0.625 PC3       pca_XJeKD
-8 RBI   -0.760 PC3       pca_XJeKD
-9 R      0.178 PC3       pca_XJeKD</code></pre>
+1 HR     0.584 PC1       pca_nBtzL
+2 RBI    0.607 PC1       pca_nBtzL
+3 R      0.539 PC1       pca_nBtzL
+4 HR     0.518 PC2       pca_nBtzL
+5 RBI    0.232 PC2       pca_nBtzL
+6 R     -0.823 PC2       pca_nBtzL
+7 HR     0.625 PC3       pca_nBtzL
+8 RBI   -0.760 PC3       pca_nBtzL
+9 R      0.178 PC3       pca_nBtzL</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>pca_loadings <span class="ot">&lt;-</span> pca_tidy <span class="sc">|&gt;</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"component"</span>,</span>
@@ -667,15 +667,15 @@ id:        2</code></pre>
 <pre><code># A tibble: 9 × 4
   terms  value component id       
   &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;    
-1 HR     0.582 PC1       pca_8iZkx
-2 RBI    0.604 PC1       pca_8iZkx
-3 R      0.544 PC1       pca_8iZkx
-4 HR    -0.531 PC2       pca_8iZkx
-5 RBI   -0.225 PC2       pca_8iZkx
-6 R      0.817 PC2       pca_8iZkx
-7 HR    -0.616 PC3       pca_8iZkx
-8 RBI    0.765 PC3       pca_8iZkx
-9 R     -0.189 PC3       pca_8iZkx</code></pre>
+1 HR     0.582 PC1       pca_XjiMp
+2 RBI    0.604 PC1       pca_XjiMp
+3 R      0.544 PC1       pca_XjiMp
+4 HR    -0.531 PC2       pca_XjiMp
+5 RBI   -0.225 PC2       pca_XjiMp
+6 R      0.817 PC2       pca_XjiMp
+7 HR    -0.616 PC3       pca_XjiMp
+8 RBI    0.765 PC3       pca_XjiMp
+9 R     -0.189 PC3       pca_XjiMp</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>pca_loadings_new <span class="ot">&lt;-</span> pca_tidy_new <span class="sc">|&gt;</span></span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">"component"</span>,</span>
@@ -1481,7 +1481,7 @@ Call: ecdf(bat_new$age)
 <pre><code># A tibble: 1 × 2
   penalty .config              
     &lt;dbl&gt; &lt;chr&gt;                
-1   0.202 Preprocessor1_Model17</code></pre>
+1   0.244 Preprocessor1_Model18</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb171"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a>ridge_wflow_final_old <span class="ot">&lt;-</span> ridge_wflow_old <span class="sc">|&gt;</span></span>
 <span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(<span class="at">parameters =</span> ridge_best_old) </span>
@@ -1506,52 +1506,52 @@ Model: linear_reg()
 Call:  glmnet::glmnet(x = maybe_matrix(x), y = y, family = "gaussian",      alpha = ~0) 
 
     Df  %Dev Lambda
-1    6  0.00 486.60
-2    6  0.35 443.40
-3    6  0.39 404.00
-4    6  0.42 368.10
-5    6  0.46 335.40
-6    6  0.51 305.60
-7    6  0.56 278.40
-8    6  0.61 253.70
-9    6  0.67 231.20
-10   6  0.73 210.60
-11   6  0.80 191.90
-12   6  0.88 174.90
-13   6  0.96 159.30
-14   6  1.06 145.20
-15   6  1.16 132.30
-16   6  1.27 120.50
-17   6  1.39 109.80
-18   6  1.52 100.10
-19   6  1.66  91.18
-20   6  1.82  83.08
-21   6  1.99  75.70
-22   6  2.17  68.97
-23   6  2.37  62.85
-24   6  2.59  57.26
-25   6  2.83  52.18
-26   6  3.09  47.54
-27   6  3.37  43.32
-28   6  3.67  39.47
-29   6  4.00  35.96
-30   6  4.35  32.77
-31   6  4.74  29.86
-32   6  5.15  27.20
-33   6  5.59  24.79
-34   6  6.07  22.59
-35   6  6.58  20.58
-36   6  7.12  18.75
-37   6  7.71  17.09
-38   6  8.33  15.57
-39   6  8.99  14.18
-40   6  9.69  12.92
-41   6 10.43  11.78
-42   6 11.21  10.73
-43   6 12.04   9.78
-44   6 12.90   8.91
-45   6 13.80   8.12
-46   6 14.74   7.40
+1    6  0.00 484.80
+2    6  0.37 441.80
+3    6  0.40 402.50
+4    6  0.44 366.80
+5    6  0.49 334.20
+6    6  0.53 304.50
+7    6  0.58 277.40
+8    6  0.64 252.80
+9    6  0.70 230.30
+10   6  0.77 209.90
+11   6  0.84 191.20
+12   6  0.92 174.20
+13   6  1.01 158.80
+14   6  1.11 144.70
+15   6  1.21 131.80
+16   6  1.33 120.10
+17   6  1.45 109.40
+18   6  1.59  99.71
+19   6  1.74  90.85
+20   6  1.90  82.78
+21   6  2.08  75.43
+22   6  2.27  68.73
+23   6  2.48  62.62
+24   6  2.71  57.06
+25   6  2.96  51.99
+26   6  3.22  47.37
+27   6  3.52  43.16
+28   6  3.83  39.33
+29   6  4.17  35.83
+30   6  4.54  32.65
+31   6  4.94  29.75
+32   6  5.36  27.11
+33   6  5.82  24.70
+34   6  6.31  22.50
+35   6  6.84  20.51
+36   6  7.41  18.68
+37   6  8.01  17.02
+38   6  8.65  15.51
+39   6  9.33  14.13
+40   6 10.04  12.88
+41   6 10.80  11.73
+42   6 11.60  10.69
+43   6 12.44   9.74
+44   6 13.32   8.88
+45   6 14.23   8.09
+46   6 15.18   7.37
 
 ...
 and 54 more lines.</code></pre>
@@ -1610,52 +1610,52 @@ Model: linear_reg()
 Call:  glmnet::glmnet(x = maybe_matrix(x), y = y, family = "gaussian",      alpha = ~0) 
 
     Df  %Dev Lambda
-1    6  0.00 486.60
-2    6  0.35 443.40
-3    6  0.39 404.00
-4    6  0.42 368.10
-5    6  0.46 335.40
-6    6  0.51 305.60
-7    6  0.56 278.40
-8    6  0.61 253.70
-9    6  0.67 231.20
-10   6  0.73 210.60
-11   6  0.80 191.90
-12   6  0.88 174.90
-13   6  0.96 159.30
-14   6  1.06 145.20
-15   6  1.16 132.30
-16   6  1.27 120.50
-17   6  1.39 109.80
-18   6  1.52 100.10
-19   6  1.66  91.18
-20   6  1.82  83.08
-21   6  1.99  75.70
-22   6  2.17  68.97
-23   6  2.37  62.85
-24   6  2.59  57.26
-25   6  2.83  52.18
-26   6  3.09  47.54
-27   6  3.37  43.32
-28   6  3.67  39.47
-29   6  4.00  35.96
-30   6  4.35  32.77
-31   6  4.74  29.86
-32   6  5.15  27.20
-33   6  5.59  24.79
-34   6  6.07  22.59
-35   6  6.58  20.58
-36   6  7.12  18.75
-37   6  7.71  17.09
-38   6  8.33  15.57
-39   6  8.99  14.18
-40   6  9.69  12.92
-41   6 10.43  11.78
-42   6 11.21  10.73
-43   6 12.04   9.78
-44   6 12.90   8.91
-45   6 13.80   8.12
-46   6 14.74   7.40
+1    6  0.00 484.80
+2    6  0.37 441.80
+3    6  0.40 402.50
+4    6  0.44 366.80
+5    6  0.49 334.20
+6    6  0.53 304.50
+7    6  0.58 277.40
+8    6  0.64 252.80
+9    6  0.70 230.30
+10   6  0.77 209.90
+11   6  0.84 191.20
+12   6  0.92 174.20
+13   6  1.01 158.80
+14   6  1.11 144.70
+15   6  1.21 131.80
+16   6  1.33 120.10
+17   6  1.45 109.40
+18   6  1.59  99.71
+19   6  1.74  90.85
+20   6  1.90  82.78
+21   6  2.08  75.43
+22   6  2.27  68.73
+23   6  2.48  62.62
+24   6  2.71  57.06
+25   6  2.96  51.99
+26   6  3.22  47.37
+27   6  3.52  43.16
+28   6  3.83  39.33
+29   6  4.17  35.83
+30   6  4.54  32.65
+31   6  4.94  29.75
+32   6  5.36  27.11
+33   6  5.82  24.70
+34   6  6.31  22.50
+35   6  6.84  20.51
+36   6  7.41  18.68
+37   6  8.01  17.02
+38   6  8.65  15.51
+39   6  9.33  14.13
+40   6 10.04  12.88
+41   6 10.80  11.73
+42   6 11.60  10.69
+43   6 12.44   9.74
+44   6 13.32   8.88
+45   6 14.23   8.09
+46   6 15.18   7.37
 
 ...
 and 54 more lines.</code></pre>
@@ -1681,13 +1681,13 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 7 × 3
   term        estimate penalty
   &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;
-1 (Intercept)  -0.0122   0.202
-2 BA           -0.0754   0.202
-3 PA            0.161    0.202
-4 PC_score      0.237    0.202
-5 OPS           0.121    0.202
-6 SORate       -0.0836   0.202
-7 age           0.393    0.202</code></pre>
+1 (Intercept)   0.0124   0.244
+2 BA           -0.0691   0.244
+3 PA            0.162    0.244
+4 PC_score      0.243    0.244
+5 OPS           0.118    0.244
+6 SORate       -0.0823   0.244
+7 age           0.375    0.244</code></pre>
 </div>
 </div>
 <p>The ridge regression model has been completed below.</p>
@@ -1702,18 +1702,18 @@ and 54 more lines.</code></pre>
 <span id="cb180-8"><a href="#cb180-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 667 × 30
-   Name  Salary_ZScore   .pred  Year team_payroll    PA    BA    HR   age salary
-   &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 Adri…      -0.870   -0.748   1999 top            614 0.275    15    20 2.20e5
- 2 Al M…      -0.00646 -0.131   1997 bottom         477 0.291    13    29 2.27e6
- 3 Al N…      -0.877   -0.231   1989 lower          521 0.253     0    29 1.80e5
- 4 Alan…       0.0736   0.725   1987 upper          668 0.343    28    29 6.17e5
- 5 Albe…       0.324    0.427   1994 bottom         480 0.357    36    28 2.78e6
- 6 Alex…      -1.09    -0.452   1994 lower          398 0.296     4    29 3.75e5
- 7 Alvi…       1.19     0.518   1989 upper          611 0.305    21    29 1.4 e6
- 8 Alvi…       0.437    0.0730  1991 upper          528 0.221    12    31 1.73e6
- 9 Andr…       1.21     0.758   1986 bottom         475 0.229    17    37 1.10e6
-10 Andr…      -1.11    -0.983   1986 middle         356 0.271    10    25 6.75e4
+   Name   Salary_ZScore  .pred  Year team_payroll    PA    BA    HR   age salary
+   &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
+ 1 Adam …       -0.951  -0.283  2000 top            641 0.266     9    24 2.02e5
+ 2 Adria…       -0.870  -0.686  1999 top            614 0.275    15    20 2.20e5
+ 3 Adria…       -0.922  -0.721  2000 bottom         340 0.315     4    26 2.85e5
+ 4 Al Co…       -0.413   0.383  1985 upper          487 0.265    14    33 4   e5
+ 5 Al Ma…        0.0937  0.449  1999 bottom         593 0.277    24    31 2.70e6
+ 6 Al Ne…       -0.877  -0.219  1989 lower          521 0.253     0    29 1.80e5
+ 7 Alan …        0.895   0.201  1991 upper          421 0.248     9    33 2.20e6
+ 8 Alber…        3.39    1.50   1998 upper          706 0.328    49    32 1   e7
+ 9 Alex …       -0.860  -0.569  1999 &lt;NA&gt;           329 0.3       8    27 2.45e5
+10 Alex …       -0.752   0.177  1996 upper          677 0.358    36    21 4.42e5
 # ℹ 657 more rows
 # ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
 #   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
@@ -1726,7 +1726,7 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.784</code></pre>
+1 rmse    standard       0.703</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1740,21 +1740,21 @@ and 54 more lines.</code></pre>
 <span id="cb184-8"><a href="#cb184-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 728 × 30
-   Name   Salary_ZScore  .pred  Year team_payroll    PA    BA    HR   age salary
-   &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 A. J.…       -0.809  -0.286  2003 lower          533 0.312    11    26 3.65e5
- 2 A. J.…       -0.0406 -0.193  2004 upper          510 0.272    11    27 3.5 e6
- 3 A. J.…       -0.524   0.278  2011 upper          500 0.287     8    34 2   e6
- 4 Aaron…       -0.453   0.458  2002 middle         685 0.241    26    29 2.10e6
- 5 Aaron…       -0.171   0.249  2005 bottom         565 0.243    16    32 3   e6
- 6 Aaron…       -0.147   0.123  2010 middle         580 0.205    26    28 4   e6
- 7 Aaron…        0.952   0.145  2008 upper          611 0.271    13    31 9.60e6
- 8 Aaron…        0.907   0.143  2009 upper          546 0.261    15    32 9.60e6
- 9 Abrah…       -0.624  -0.518  2006 top            369 0.211     2    30 1.13e6
-10 Adam …        0.709   0.280  2006 middle         683 0.234    40    26 7.5 e6
+   Name        Salary_ZScore    .pred  Year team_payroll    PA    BA    HR   age
+   &lt;chr&gt;               &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
+ 1 A. J. Ellis       -0.765  -0.0613   2012 top            505 0.27     13    31
+ 2 A. J. Pier…       -0.922  -0.826    2001 lower          405 0.289     7    24
+ 3 A. J. Pier…       -0.938  -0.663    2002 lower          469 0.3       6    25
+ 4 A. J. Pier…       -0.342  -0.152    2005 upper          497 0.257    18    28
+ 5 A. J. Pier…       -0.0227 -0.00559  2006 upper          543 0.295    16    29
+ 6 A. J. Pier…        0.217  -0.0466   2007 upper          509 0.263    14    30
+ 7 Aaron Boone       -0.868  -0.298    2001 middle         427 0.294    14    28
+ 8 Aaron Hill         0.0345 -0.435    2011 middle         429 0.225     6    29
+ 9 Aaron Hill         0.146   0.628    2012 lower          668 0.302    26    30
+10 Aaron Rowa…       -0.945  -1.00     2002 upper          331 0.258     7    25
 # ℹ 718 more rows
-# ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
-#   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
+# ℹ 21 more variables: salary &lt;int&gt;, R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;,
+#   OBP &lt;dbl&gt;, BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
 #   HRRate &lt;dbl&gt;, RRate &lt;dbl&gt;, RBIRate &lt;dbl&gt;, SBRate &lt;dbl&gt;,
 #   SBSuccessRate &lt;dbl&gt;, PC_score &lt;dbl&gt;, PC1 &lt;dbl&gt;, PC2 &lt;dbl&gt;, PC3 &lt;dbl&gt;,
 #   OPS &lt;dbl&gt;, bats &lt;fct&gt;, lgID &lt;fct&gt;</code></pre>
@@ -1764,7 +1764,7 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.751</code></pre>
+1 rmse    standard       0.799</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1821,7 +1821,7 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 1 × 2
   penalty .config              
     &lt;dbl&gt; &lt;chr&gt;                
-1   0.373 Preprocessor1_Model09</code></pre>
+1   0.316 Preprocessor1_Model08</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb194"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb194-1"><a href="#cb194-1" aria-hidden="true" tabindex="-1"></a>ridge_wflow_final_new <span class="ot">&lt;-</span> ridge_wflow_new <span class="sc">|&gt;</span></span>
 <span id="cb194-2"><a href="#cb194-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(<span class="at">parameters =</span> ridge_best_new) </span>
@@ -1880,52 +1880,52 @@ Model: linear_reg()
 Call:  glmnet::glmnet(x = maybe_matrix(x), y = y, family = "gaussian",      alpha = ~0) 
 
     Df  %Dev Lambda
-1    6  0.00 464.60
-2    6  0.31 423.40
-3    6  0.34 385.70
-4    6  0.37 351.50
-5    6  0.41 320.30
-6    6  0.45 291.80
-7    6  0.49 265.90
-8    6  0.54 242.30
-9    6  0.59 220.70
-10   6  0.65 201.10
-11   6  0.71 183.30
-12   6  0.78 167.00
-13   6  0.85 152.10
-14   6  0.93 138.60
-15   6  1.02 126.30
-16   6  1.12 115.10
-17   6  1.22 104.90
-18   6  1.34  95.55
-19   6  1.47  87.06
-20   6  1.60  79.33
-21   6  1.75  72.28
-22   6  1.92  65.86
-23   6  2.09  60.01
-24   6  2.29  54.68
-25   6  2.50  49.82
-26   6  2.72  45.39
-27   6  2.97  41.36
-28   6  3.24  37.69
-29   6  3.53  34.34
-30   6  3.84  31.29
-31   6  4.18  28.51
-32   6  4.54  25.98
-33   6  4.93  23.67
-34   6  5.35  21.57
-35   6  5.80  19.65
-36   6  6.28  17.90
-37   6  6.79  16.31
-38   6  7.34  14.86
-39   6  7.92  13.54
-40   6  8.54  12.34
-41   6  9.19  11.24
-42   6  9.88  10.25
-43   6 10.60   9.34
-44   6 11.36   8.51
-45   6 12.15   7.75
-46   6 12.98   7.06
+1    6  0.00 470.10
+2    6  0.31 428.40
+3    6  0.34 390.30
+4    6  0.37 355.60
+5    6  0.41 324.00
+6    6  0.45 295.30
+7    6  0.49 269.00
+8    6  0.54 245.10
+9    6  0.59 223.40
+10   6  0.64 203.50
+11   6  0.71 185.40
+12   6  0.77 169.00
+13   6  0.85 153.90
+14   6  0.93 140.30
+15   6  1.02 127.80
+16   6  1.11 116.50
+17   6  1.22 106.10
+18   6  1.33  96.68
+19   6  1.46  88.09
+20   6  1.60  80.27
+21   6  1.75  73.14
+22   6  1.91  66.64
+23   6  2.09  60.72
+24   6  2.28  55.33
+25   6  2.49  50.41
+26   6  2.71  45.93
+27   6  2.96  41.85
+28   6  3.23  38.13
+29   6  3.52  34.75
+30   6  3.83  31.66
+31   6  4.17  28.85
+32   6  4.53  26.28
+33   6  4.92  23.95
+34   6  5.34  21.82
+35   6  5.79  19.88
+36   6  6.27  18.12
+37   6  6.79  16.51
+38   6  7.34  15.04
+39   6  7.92  13.70
+40   6  8.54  12.49
+41   6  9.20  11.38
+42   6  9.89  10.37
+43   6 10.62   9.45
+44   6 11.38   8.61
+45   6 12.19   7.84
+46   6 13.02   7.15
 
 ...
 and 54 more lines.</code></pre>
@@ -1951,13 +1951,13 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 7 × 3
   term        estimate penalty
   &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;
-1 (Intercept)  0.00478   0.373
-2 BA          -0.0164    0.373
-3 PA           0.135     0.373
-4 PC_score     0.185     0.373
-5 OPS          0.103     0.373
-6 SORate      -0.0260    0.373
-7 age          0.350     0.373</code></pre>
+1 (Intercept)  0.00314   0.316
+2 BA          -0.0212    0.316
+3 PA           0.130     0.316
+4 PC_score     0.189     0.316
+5 OPS          0.112     0.316
+6 SORate      -0.0178    0.316
+7 age          0.367     0.316</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1972,21 +1972,21 @@ and 54 more lines.</code></pre>
 <span id="cb202-9"><a href="#cb202-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 728 × 30
-   Name  Salary_ZScore   .pred  Year team_payroll    PA    BA    HR   age salary
-   &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 A. J…       -0.809  -0.251   2003 lower          533 0.312    11    26 3.65e5
- 2 A. J…       -0.0406 -0.280   2004 upper          510 0.272    11    27 3.5 e6
- 3 A. J…       -0.524   0.192   2011 upper          500 0.287     8    34 2   e6
- 4 Aaro…       -0.453   0.308   2002 middle         685 0.241    26    29 2.10e6
- 5 Aaro…       -0.171   0.163   2005 bottom         565 0.243    16    32 3   e6
- 6 Aaro…       -0.147  -0.0440  2010 middle         580 0.205    26    28 4   e6
- 7 Aaro…        0.952   0.159   2008 upper          611 0.271    13    31 9.60e6
- 8 Aaro…        0.907   0.167   2009 upper          546 0.261    15    32 9.60e6
- 9 Abra…       -0.624  -0.529   2006 top            369 0.211     2    30 1.13e6
-10 Adam…        0.709   0.240   2006 middle         683 0.234    40    26 7.5 e6
+   Name        Salary_ZScore    .pred  Year team_payroll    PA    BA    HR   age
+   &lt;chr&gt;               &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
+ 1 A. J. Ellis       -0.765   3.05e-5  2012 top            505 0.27     13    31
+ 2 A. J. Pier…       -0.922  -7.82e-1  2001 lower          405 0.289     7    24
+ 3 A. J. Pier…       -0.938  -6.30e-1  2002 lower          469 0.3       6    25
+ 4 A. J. Pier…       -0.342  -2.24e-1  2005 upper          497 0.257    18    28
+ 5 A. J. Pier…       -0.0227 -4.24e-2  2006 upper          543 0.295    16    29
+ 6 A. J. Pier…        0.217  -1.11e-1  2007 upper          509 0.263    14    30
+ 7 Aaron Boone       -0.868  -2.46e-1  2001 middle         427 0.294    14    28
+ 8 Aaron Hill         0.0345 -5.18e-1  2011 middle         429 0.225     6    29
+ 9 Aaron Hill         0.146   5.14e-1  2012 lower          668 0.302    26    30
+10 Aaron Rowa…       -0.945  -9.35e-1  2002 upper          331 0.258     7    25
 # ℹ 718 more rows
-# ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
-#   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
+# ℹ 21 more variables: salary &lt;int&gt;, R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;,
+#   OBP &lt;dbl&gt;, BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
 #   HRRate &lt;dbl&gt;, RRate &lt;dbl&gt;, RBIRate &lt;dbl&gt;, SBRate &lt;dbl&gt;,
 #   SBSuccessRate &lt;dbl&gt;, PC_score &lt;dbl&gt;, PC1 &lt;dbl&gt;, PC2 &lt;dbl&gt;, PC3 &lt;dbl&gt;,
 #   OPS &lt;dbl&gt;, bats &lt;fct&gt;, lgID &lt;fct&gt;</code></pre>
@@ -2000,21 +2000,21 @@ and 54 more lines.</code></pre>
 <span id="cb204-7"><a href="#cb204-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 728 × 30
-   Name   Salary_ZScore  .pred  Year team_payroll    PA    BA    HR   age salary
-   &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 A. J.…       -0.809  -0.286  2003 lower          533 0.312    11    26 3.65e5
- 2 A. J.…       -0.0406 -0.193  2004 upper          510 0.272    11    27 3.5 e6
- 3 A. J.…       -0.524   0.278  2011 upper          500 0.287     8    34 2   e6
- 4 Aaron…       -0.453   0.458  2002 middle         685 0.241    26    29 2.10e6
- 5 Aaron…       -0.171   0.249  2005 bottom         565 0.243    16    32 3   e6
- 6 Aaron…       -0.147   0.123  2010 middle         580 0.205    26    28 4   e6
- 7 Aaron…        0.952   0.145  2008 upper          611 0.271    13    31 9.60e6
- 8 Aaron…        0.907   0.143  2009 upper          546 0.261    15    32 9.60e6
- 9 Abrah…       -0.624  -0.518  2006 top            369 0.211     2    30 1.13e6
-10 Adam …        0.709   0.280  2006 middle         683 0.234    40    26 7.5 e6
+   Name        Salary_ZScore    .pred  Year team_payroll    PA    BA    HR   age
+   &lt;chr&gt;               &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;
+ 1 A. J. Ellis       -0.765  -0.0613   2012 top            505 0.27     13    31
+ 2 A. J. Pier…       -0.922  -0.826    2001 lower          405 0.289     7    24
+ 3 A. J. Pier…       -0.938  -0.663    2002 lower          469 0.3       6    25
+ 4 A. J. Pier…       -0.342  -0.152    2005 upper          497 0.257    18    28
+ 5 A. J. Pier…       -0.0227 -0.00559  2006 upper          543 0.295    16    29
+ 6 A. J. Pier…        0.217  -0.0466   2007 upper          509 0.263    14    30
+ 7 Aaron Boone       -0.868  -0.298    2001 middle         427 0.294    14    28
+ 8 Aaron Hill         0.0345 -0.435    2011 middle         429 0.225     6    29
+ 9 Aaron Hill         0.146   0.628    2012 lower          668 0.302    26    30
+10 Aaron Rowa…       -0.945  -1.00     2002 upper          331 0.258     7    25
 # ℹ 718 more rows
-# ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
-#   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
+# ℹ 21 more variables: salary &lt;int&gt;, R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;,
+#   OBP &lt;dbl&gt;, BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
 #   HRRate &lt;dbl&gt;, RRate &lt;dbl&gt;, RBIRate &lt;dbl&gt;, SBRate &lt;dbl&gt;,
 #   SBSuccessRate &lt;dbl&gt;, PC_score &lt;dbl&gt;, PC1 &lt;dbl&gt;, PC2 &lt;dbl&gt;, PC3 &lt;dbl&gt;,
 #   OPS &lt;dbl&gt;, bats &lt;fct&gt;, lgID &lt;fct&gt;</code></pre>
@@ -2024,14 +2024,14 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.761</code></pre>
+1 rmse    standard       0.806</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb208"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb208-1"><a href="#cb208-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rmse</span>(predictions_ridge_old_new, <span class="at">truth =</span> Salary_ZScore, <span class="at">estimate =</span> .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.751</code></pre>
+1 rmse    standard       0.799</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -2048,16 +2048,16 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 667 × 30
    Name  Salary_ZScore   .pred  Year team_payroll    PA    BA    HR   age salary
    &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 Adri…      -0.870   -0.671   1999 top            614 0.275    15    20 2.20e5
- 2 Al M…      -0.00646 -0.0735  1997 bottom         477 0.291    13    29 2.27e6
- 3 Al N…      -0.877   -0.296   1989 lower          521 0.253     0    29 1.80e5
- 4 Alan…       0.0736   0.607   1987 upper          668 0.343    28    29 6.17e5
- 5 Albe…       0.324    0.462   1994 bottom         480 0.357    36    28 2.78e6
- 6 Alex…      -1.09    -0.347   1994 lower          398 0.296     4    29 3.75e5
- 7 Alvi…       1.19     0.394   1989 upper          611 0.305    21    29 1.4 e6
- 8 Alvi…       0.437   -0.0352  1991 upper          528 0.221    12    31 1.73e6
- 9 Andr…       1.21     0.574   1986 bottom         475 0.229    17    37 1.10e6
-10 Andr…      -1.11    -0.787   1986 middle         356 0.271    10    25 6.75e4
+ 1 Adam…       -0.951  -0.411   2000 top            641 0.266     9    24 2.02e5
+ 2 Adri…       -0.870  -0.714   1999 top            614 0.275    15    20 2.20e5
+ 3 Adri…       -0.922  -0.665   2000 bottom         340 0.315     4    26 2.85e5
+ 4 Al C…       -0.413   0.281   1985 upper          487 0.265    14    33 4   e5
+ 5 Al M…        0.0937  0.419   1999 bottom         593 0.277    24    31 2.70e6
+ 6 Al N…       -0.877  -0.332   1989 lower          521 0.253     0    29 1.80e5
+ 7 Alan…        0.895   0.0777  1991 upper          421 0.248     9    33 2.20e6
+ 8 Albe…        3.39    1.31    1998 upper          706 0.328    49    32 1   e7
+ 9 Alex…       -0.860  -0.498   1999 &lt;NA&gt;           329 0.3       8    27 2.45e5
+10 Alex…       -0.752   0.131   1996 upper          677 0.358    36    21 4.42e5
 # ℹ 657 more rows
 # ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
 #   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
@@ -2074,18 +2074,18 @@ and 54 more lines.</code></pre>
 <span id="cb212-7"><a href="#cb212-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 667 × 30
-   Name  Salary_ZScore   .pred  Year team_payroll    PA    BA    HR   age salary
-   &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
- 1 Adri…      -0.870   -0.748   1999 top            614 0.275    15    20 2.20e5
- 2 Al M…      -0.00646 -0.131   1997 bottom         477 0.291    13    29 2.27e6
- 3 Al N…      -0.877   -0.231   1989 lower          521 0.253     0    29 1.80e5
- 4 Alan…       0.0736   0.725   1987 upper          668 0.343    28    29 6.17e5
- 5 Albe…       0.324    0.427   1994 bottom         480 0.357    36    28 2.78e6
- 6 Alex…      -1.09    -0.452   1994 lower          398 0.296     4    29 3.75e5
- 7 Alvi…       1.19     0.518   1989 upper          611 0.305    21    29 1.4 e6
- 8 Alvi…       0.437    0.0730  1991 upper          528 0.221    12    31 1.73e6
- 9 Andr…       1.21     0.758   1986 bottom         475 0.229    17    37 1.10e6
-10 Andr…      -1.11    -0.983   1986 middle         356 0.271    10    25 6.75e4
+   Name   Salary_ZScore  .pred  Year team_payroll    PA    BA    HR   age salary
+   &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;
+ 1 Adam …       -0.951  -0.283  2000 top            641 0.266     9    24 2.02e5
+ 2 Adria…       -0.870  -0.686  1999 top            614 0.275    15    20 2.20e5
+ 3 Adria…       -0.922  -0.721  2000 bottom         340 0.315     4    26 2.85e5
+ 4 Al Co…       -0.413   0.383  1985 upper          487 0.265    14    33 4   e5
+ 5 Al Ma…        0.0937  0.449  1999 bottom         593 0.277    24    31 2.70e6
+ 6 Al Ne…       -0.877  -0.219  1989 lower          521 0.253     0    29 1.80e5
+ 7 Alan …        0.895   0.201  1991 upper          421 0.248     9    33 2.20e6
+ 8 Alber…        3.39    1.50   1998 upper          706 0.328    49    32 1   e7
+ 9 Alex …       -0.860  -0.569  1999 &lt;NA&gt;           329 0.3       8    27 2.45e5
+10 Alex …       -0.752   0.177  1996 upper          677 0.358    36    21 4.42e5
 # ℹ 657 more rows
 # ℹ 20 more variables: R &lt;int&gt;, RBI &lt;int&gt;, SlugPct &lt;dbl&gt;, OBP &lt;dbl&gt;,
 #   BBRate &lt;dbl&gt;, SORate &lt;dbl&gt;, DoubleRate &lt;dbl&gt;, TripleRate &lt;dbl&gt;,
@@ -2098,7 +2098,7 @@ and 54 more lines.</code></pre>
 <pre><code># A tibble: 1 × 3
   .metric .estimator .estimate
   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard       0.802</code></pre>
+1 rmse    standard       0.711</code></pre>
 </div>
 </div>
 <p>Lastly, what I did was compare the old model to the new model. We did this by plugging the test_old into both models to see which model predicted a higher value and we also plugged the test_new into both models to see which model predicted the higher values. As it turned out, there was a difference between the models and the older model predicted higher salary z-scores for both models indicating that the older players are predicted to be payed more than the new players thus showing that there is a significant pay disparity between the older group of players during the steroid era and the newer group of players.</p>
@@ -2117,13 +2117,13 @@ and 54 more lines.</code></pre>
     Welch Two Sample t-test
 
 data:  groupA and groupB
-t = 0.1961, df = 1423.4, p-value = 0.8446
+t = 0.89013, df = 1439.8, p-value = 0.3735
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
- -0.04918640  0.06011272
+ -0.03093645  0.08233683
 sample estimates:
    mean of x    mean of y 
-0.0063386432 0.0008754821 </code></pre>
+ 0.009863549 -0.015836640 </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -2136,13 +2136,13 @@ sample estimates:
     Welch Two Sample t-test
 
 data:  group1 and group2
-t = 0.7611, df = 1306.2, p-value = 0.4467
+t = 1.7948, df = 1325.1, p-value = 0.07291
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
- -0.03587251  0.08135077
+ -0.0046900  0.1055498
 sample estimates:
-   mean of x    mean of y 
- 0.001448035 -0.021291093 </code></pre>
+  mean of x   mean of y 
+-0.01019777 -0.06062765 </code></pre>
 </div>
 </div>
 <p>However, upon further inspection of the entire dataset and not just the outliers, we see in a two sample t.test that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old dataset and the new dataset have no significant difference in stats but adjusting for inflation no significant differences in salaries as well.</p>
