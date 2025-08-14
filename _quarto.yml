@@ -4,8 +4,6 @@ project:
 
 website:
   title: "Statistical_modeling"
-  #subtitle: "Baseball and the shift in salaries"
-  #about: "Statistical modeling project using RStudio"
   navbar:
     left:
       - href: index.qmd
