@@ -8,16 +8,14 @@ date: "2025-05-13"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Data Limitations
+## Data Limitations
 
-Include that my baseball salaries only went back to 1980 and up to 2016, left out many key years.
+Due to the size of the Salary database, I was only able to look at the years from 1985-2016.
 
 
 ## Exploratory Data Analysis
 
-##### Defining my era's
-
-The first thing that I need to do is define my eras of baseball. Since the salary database only goes back to 1985, I divided my old and new eras into 15 year windows from 1985-2000 and 2001-2016
+After downloading the tidy packages and my baseball data set, the first thing to do is define the eras of baseball. Since the salary database only goes back to 1985, the eras were divided into 15 year windows from 1985-2000 and 2001-2016. Since creating each dataset takes multiple steps, the 1985-2000 called 'old' will be defined first.
 
 ```{r}
 library(Lahman)
@@ -52,7 +50,7 @@ batting_older <- batting_older |>
 
 ```
 
-## Here I will modify the dataset a little bit to get the variables that I want.
+The data set will need additional variables, so it was modified briefly to include these changes.
 
 ```{r}
 
@@ -84,13 +82,9 @@ bat_old_proto <- batting_older |>
   )
 ```
 
+Due to the nature of how statistics are calculated in baseball, a HR when successfully achieved in baseball also counts as an RBI and R. Due to this overlapping nature of the statistic, HR, R, and RBI will be combined into a single variable, which will be called PC_Score using Principal Component Analysis.
 
-Since a HR when successfully achieved in baseball also counts as an RBI and R, I decided to combine them into a single variable.
-
-
-##### Creating a single variable for HR, RBI, and R
-
-Below, we will create the PC variable called PC_Score which will use principal component analysis to create an equation for all 3 variables and combine them into a single variable.
+Using the recipe function, we will first add the desired variables HR, R, and RBI.
 
 ```{r}
 pca_recipe <- recipe(
@@ -103,11 +97,14 @@ pca_recipe <- recipe(
   step_pca(all_predictors(), num_comp = 10)
 ```
 
+Then, the recipe is prepped.
+
 ```{r}
 pca_prep <- pca_recipe |>
   prep()
 pca_prep
 ```
+Then, the recipe is baked.
 
 ```{r}
 pca_baked <- pca_prep |>
@@ -116,11 +113,24 @@ pca_baked
 
 ```
 
+Lastly using the tidy function, the PC values are loaded.
+
 ```{r}
 pca_tidy <- tidy(pca_prep, 3, type = "coef") # tidy step 3 - the PCA step
 head(pca_tidy, 20)
 ```
+The formula is then derived for PC1, which will be changed in name to PC_Score.
 
+```{r}
+pca_loadings <- pca_tidy |>
+  pivot_wider(names_from = "component",
+              values_from = "value") |>
+  dplyr::select(!id)
+arrange(pca_loadings, desc(abs(PC1)))
+arrange(pca_loadings, desc(abs(PC2)))
+```
+
+Then it is added to the data set and the values are posted below.
 
 ```{r}
 bat_old_proto <- bat_old_proto |> 
@@ -129,7 +139,6 @@ bat_old_proto <- bat_old_proto |>
 
 ```
 
-## Here, we now add the PC_Score variable to our dataset 
 
 ```{r}
 bat_old_proto <- bat_old_proto |>
@@ -166,7 +175,7 @@ bat_old_proto <- bat_old_proto |>
   )
 ```
 
-Now, I will take the salary variable and turn it into a z-score to account for the change in salary due to inflation. i.e. I don't want inflation to undermine what I am trying to accomplish comparing eras because an increase in nominal salary could easily just be a function of inflation of the dollar and nothing related to the skill of the player.
+Now that PC_Score is added to the data set, adding the salary variable will come next. Due to inflation, the salary variable will be standardized into a Salary_ZScore.
 
 ```{r}
 bat_old <- bat_old_proto |>
@@ -175,19 +184,7 @@ bat_old <- bat_old_proto |>
   ungroup()
 ```
 
-```{r}
-pca_tidy <- tidy(pca_prep, 3, type = "coef") # tidy step 3 - the PCA step
-head(pca_tidy, 20)
-
-pca_loadings <- pca_tidy |>
-  pivot_wider(names_from = "component",
-              values_from = "value") |>
-  dplyr::select(!id)
-arrange(pca_loadings, desc(abs(PC1)))
-arrange(pca_loadings, desc(abs(PC2)))
-```
-
-Then repeating the process of creating a data set and PC_Score for the new era of players.
+Then repeating this process, the second data set for players from 2001-2016 are now included into a data set called 'new'.
 
 ```{r}
 library(Lahman)
@@ -222,6 +219,8 @@ batting_new <- batting_new |>
 
 ```
 
+Modifying the variables.
+
 ```{r}
 bat_new_proto <- batting_new |>
   transmute(
@@ -251,6 +250,8 @@ bat_new_proto <- batting_new |>
   )
 ```
 
+Creating the variable for HR/RBI/R called PC_Score.
+
 ```{r}
 pca_recipe_new <- recipe(
   ~ Name + Year + HR + RBI + R, data = bat_new_proto
@@ -262,6 +263,7 @@ pca_recipe_new <- recipe(
   step_pca(all_predictors(), num_comp = 10)
 ```
 
+Prepping and then baking the recipe.
 
 ```{r}
 pca_prep_new <- pca_recipe_new |>
@@ -277,7 +279,7 @@ bat_new_proto <- bat_new_proto |>
             by =c("Name", "Year"))
 ```
 
-Looking at the top of the list and seeing the heaviest hitters Barry Bonds, Sammy Sosa, and Alex Rodriguez on the list for PC_Score gave me the idea that the list made sense. I also looked for a player like Ichiro, one of the most talented contact hitters, to see how he would be evaluated. Given that he was placed in the upper-middle of the pack, it made sense that he would not be featured with the heaviest sluggers in the league.
+Adding the variable to the dataset.
 
 ```{r}
 bat_new_proto <- bat_new_proto |>
@@ -314,7 +316,7 @@ bat_new_proto <- bat_new_proto |>
   )
 ```
 
-Below we are adding standard deviation of salary.
+Standardizing salary.
 
 ```{r}
 bat_new <- bat_new_proto |>
@@ -333,7 +335,7 @@ arrange(pca_loadings_new, desc(abs(PC1)))
 arrange(pca_loadings_new, desc(abs(PC2)))
 ```
 
-##### We are now going to adjust the Salary_ZScore values in our data frames to not include N/A values as values that we are interested in observing so that graphically, we won't have any issues below.
+Lastly, any N/A values in the variable Salary_ZScore will be dropped before continuing.
 
 ```{r}
 bat_old <- bat_old |>
@@ -344,69 +346,93 @@ bat_new <- bat_new |>
 
 ```
 
-Now, one of the questions that I wanted to explore using the eye test first was if there was a difference in any stat categories between the era's that might account for the cause of a salary difference. I created the percentiles of some of the major stat categories below and compared them between the older and newer datasets. 
+One question that I wanted to explore before continuing was "Are the statistics different between the two group i.e. could salary be related to one of the era's performing better than the other."
 
 ```{r}
 percentiles_BA_old<-quantile(bat_old_proto$BA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1))
+
+percentiles_BA_old
 ```
 
 ```{r}
 percentile_BA_new<-quantile(bat_new_proto$BA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1))
+
+percentile_BA_new
 ```
 
 ```{r}
 percentiles_PA_old<-quantile(bat_old_proto$PA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_PA_old
 ```
 
 ```{r}
 percentile_PA_new<-quantile(bat_new_proto$PA, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1))
+
+percentile_PA_new
 ```
 
 ```{r}
 percentiles_PC_old<-quantile(bat_old_proto$PC_score, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_PC_old
 ```
 
 ```{r}
 percentiles_PC_new<-quantile(bat_new_proto$PC_score, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_PC_new
 ```
 
 ```{r}
 percentiles_SORate_old<-quantile(bat_old_proto$SORate, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_SORate_old
 ```
 
 ```{r}
 percentiles_SORate_new<-quantile(bat_new_proto$SORate, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_SORate_new
 ```
 
 ```{r}
 percentiles_OPS_old<-quantile(bat_old_proto$OPS, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_OPS_old
 ```
 
 ```{r}
 percentiles_OPS_new<-quantile(bat_new_proto$OPS, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_OPS_new
 ```
 
 ```{r}
 percentiles_age_old<-quantile(bat_old_proto$age, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_age_old
 ```
 
 ```{r}
 percentiles_age_new<-quantile(bat_new_proto$age, probs = c(0, 0.05, 0.1, 0.15, .2, .25, .3, .35, .4, .45, .5, .55, .6,
                                                       .65, .7, .75, .8, .85, .9, .95, .96, .97, .98, .985, .99, .995, 1)) 
+
+percentiles_age_new
 ```
 
-3 metrics that I especially looked at when I wanted to compared these eras were the 25%/50%/75% percentiles of PC_Score, BA, and OPS just to eyeball any significant difference in the offensive numbers of the players.
+3 metrics that were especially looked at when comparing these eras were the 25%/50%/75% percentiles of PC_Score, BA, and OPS just to eyeball any significant difference in the offensive numbers of the players.
 
 Old BA 25%: 0.252, 50%: 0.271, 75%: 0.292
 New BA 25%: 0.251, 50%: 0.270, 75%: 0.289
@@ -417,7 +443,7 @@ New OPS 25%: 0.703, 50%: 0.765, 75%: 0.831
 Old PC_Score 25%: -1.20, 50%: -0.217, 75%: 1.01
 New PC_Score 25%: -1.21, 50%: -0.235, 75%: 1.02
 
-The eras are posting similar offensive numbers in 3 significant statistical categories so this can rule out any possible pay disparity over performance being base on statistics but then I wonder about just the top 10%, 5%, 1% of players to see if there is anything interesting with the outliers.
+The eras are posting similar offensive numbers in 3 significant statistical categories so this can rule out any possible pay disparity over performance being based on statistics but then pondering the top 10%, 5%, 1% of players, these values were also noted to see if there is anything interesting with the outliers.
 
 Old BA 90%: 0.311, 95%: 0.323, 99%: 0.349
 New BA 90%: 0.316, 95%: 0.318, 99%: 0.338
@@ -428,83 +454,11 @@ New OPS 90%: 0.899, 95%: 0.950, 99%: 1.04
 Old PC_Score 90%: 2.19, 95%: 2.89, 99%: 4.21
 New PC_Score 90%: 2.23, 95%: 2.91, 99%: 4.11
 
-These numbers are very consistent across the board with all the percentiles that I chose and there is no significant distinction between them just based on the eye test, so we can rule out different offensive numbers as a possible cause of any pay disparity.
+These numbers are very consistent across the board with all the percentiles that were chosen and there is no significant distinction between them just based on the eye test i.e. better statistics can be ruled out as a possible cause of any pay disparity.
 
+Lastly, the correlation matrix was created to see if there are any statistics that are worth looking at for similarity to combine into one variable similar to what was done to PC_Score. This led to finding a correlation between OPS and BA, but OPS is a stat that favors heavy hitters and BA features great contact hitters. To make the distinction between these two types of players and the fact that PC_score is already a heavy hitter stat, OPS and BA were not combined into a single variable. 
 
-Here are some graphs of the percentiles above to visually show also that they do not appear to be very different from each other.
-
-
-```{r}
-ecdf(bat_old$BA)
-plot(ecdf(bat_old$BA))
-```
-
-```{r}
-ecdf(bat_old$age)
-plot(ecdf(bat_old$age))
-```
-```{r}
-ecdf(bat_old$PA)
-plot(ecdf(bat_old$PA))
-```
-
-```{r}
-ecdf(bat_old$PC_score)
-plot(ecdf(bat_old$PC_score))
-```
-
-```{r}
-ecdf(bat_old$OPS)
-plot(ecdf(bat_old$OPS))
-```
-
-```{r}
-ecdf(bat_old$SORate)
-plot(ecdf(bat_old$SORate))
-```
-
-```{r}
-ecdf(bat_old$Salary_ZScore)
-plot(ecdf(bat_old$Salary_ZScore))
-```
-```{r}
-ecdf(bat_new$Salary_ZScore)
-plot(ecdf(bat_new$Salary_ZScore))
-```
-
-```{r}
-ecdf(bat_new$BA)
-plot(ecdf(bat_new$BA))
-```
-
-```{r}
-ecdf(bat_new$PA)
-plot(ecdf(bat_new$PA))
-```
-
-```{r}
-ecdf(bat_new$PC_score)
-plot(ecdf(bat_new$PC_score))
-```
-
-```{r}
-ecdf(bat_new$SORate)
-plot(ecdf(bat_new$SORate))
-```
-
-```{r}
-ecdf(bat_new$OPS)
-plot(ecdf(bat_new$OPS))
-```
-
-```{r}
-ecdf(bat_new$age)
-plot(ecdf(bat_new$age))
-```
-
-EXPERIMENT
-
-Briefly plotting the correlation matrix to see if there are any statistics that are worth looking at for similarity to combine into one variable led me to a correlation between OPS and BA, but OPS is a stat that favors heavy hitters and BA features great contact hitters. To make the distinction between these two types of players and the fact that I already have a heavy hitter stat for PC_score, I decided to keep these variables separate to account for this difference. For example, Ichiro was as dominant as he was due to his league leading 0.350+ BA but if you looked at OPS, we was about 0.82, which barely cracks the top 25% of players and he is most definitely a player that was in the top 5% of players in the league and a former league MVP. For this reason, I kept the two metrics separate. 
+For example, Ichiro, a dominant contact hitter with a league leading 0.350 BA, would be over looked if BA were omitted because as a power hitter, he was not nearly as powerful as the other players and he would get overlooked in the database if the league leading contact part of his game were omitted.
 
 ```{r}
 library(corrplot)
@@ -520,158 +474,6 @@ corrplot(BINGO, method = "circle", type = "upper",
 corrplot(BLINGO, method = "circle", type = "upper",
          tl.col = "black", tl.srt = 45, addCoef.col = "black")
 
-```
-The scatter plots below I do not believe are particularly relevant to the salary discussion because of how much noise there are in the graphs but to show that they do not really contribute to the salary discussion, I plotted them below to at least see the visual data.
-
-
-```{r}
-plot(bat_new$BA, bat_new$Salary_ZScore)
-```
-
-```{r}
-plot(bat_new$PA, bat_new$Salary_ZScore)
-```
-
-```{r}
-plot(bat_new$PC_score, bat_new$Salary_ZScore)
-```
-```{r}
-plot(bat_new$OPS, bat_new$Salary_ZScore)
-```
-
-```{r}
-plot(bat_new$SORate, bat_new$Salary_ZScore)
-```
-
-```{r}
-plot(bat_new$age, bat_new$Salary_ZScore)
-```
-
-
-```{r}
-plot(bat_new$BA, bat_new$PA)
-
-```
-
-```{r}
-plot(bat_new$PC_score, bat_new$Salary_ZScore)
-```
-
-
-```{r}
-plot(bat_old$BA, bat_old$PA)
-```
-
-```{r}
-plot(bat_new$BA, bat_new$PC_Score)
-```
-
-```{r}
-plot(bat_old$BA, bat_old$PC_Score)
-```
-```{r}
-plot(bat_old$OPS, bat_old$BA)
-```
-
-
-```{r}
-plot(bat_new$BA, bat_new$OPS)
-```
-
-```{r}
-plot(bat_old$BA, bat_old$SORate)
-```
-
-```{r}
-plot(bat_new$BA, bat_new$SORate)
-```
-
-```{r}
-plot(bat_old$BA, bat_old$age)
-```
-
-```{r}
-plot(bat_new$BA, bat_new$age)
-```
-
-```{r}
-plot(bat_old$PA, bat_old$PC_Score)
-```
-
-```{r}
-plot(bat_new$PA, bat_new$PC_Score)
-```
-
-```{r}
-plot(bat_old$PA, bat_old$OPS)
-```
-
-```{r}
-plot(bat_new$PA, bat_new$OPS)
-```
-
-```{r}
-plot(bat_old$PA, bat_old$SORate)
-```
-
-```{r}
-plot(bat_new$PA, bat_new$SORate)
-```
-
-```{r}
-plot(bat_old$PA, bat_old$age)
-```
-
-```{r}
-plot(bat_new$PA, bat_new$age)
-```
-
-```{r}
-plot(bat_old$PC_score, bat_old$OPS)
-```
-
-```{r}
-plot(bat_new$PC_score, bat_new$OPS)
-```
-
-```{r}
-plot(bat_old$PC_score, bat_old$SORate)
-```
-
-```{r}
-plot(bat_new$PC_score, bat_new$SORate)
-```
-
-```{r}
-plot(bat_old$PC_score, bat_old$age)
-```
-
-```{r}
-plot(bat_new$PC_score, bat_new$age)
-```
-
-```{r}
-plot(bat_old$OPS, bat_old$SORate)
-```
-
-```{r}
-plot(bat_new$OPS, bat_new$SORate)
-```
-
-```{r}
-plot(bat_old$OPS, bat_old$age)
-```
-
-```{r}
-plot(bat_new$OPS, bat_new$age)
-```
-
-```{r}
-plot(bat_old$SORate, bat_old$age)
-```
-
-```{r}
-plot(bat_new$SORate, bat_new$age)
 ```
 
 ## Modeling
@@ -692,7 +494,7 @@ test_new<- bat_new[-indices_new, ]
 train_new <- bat_new[indices_new, ]
 ```
 
-Lastly, I decided to compute a ridge model, one for the old players and one for the new players to see if there was anything that could be observed for the trends of the salaries based on these two eras.
+First, the ridge model for the old data set is created below.
 
 ```{r make model using linear regression}
 ridge_model_old <- linear_reg(mode = "regression", engine = "glmnet",
@@ -703,6 +505,7 @@ ridge_wflow_old <- workflow() |>
   add_model(ridge_model_old)
 ```
 
+The desired variables are then added into the recipe.
 
 ```{r make recipe/ combine in workflow}
 ridge_recipe_old <- recipe(
@@ -718,6 +521,8 @@ ridge_wflow_old <- ridge_wflow_old |>
   add_recipe(ridge_recipe_old)
 ```
 
+Then, the recipe is cross validated and tuned.
+
 ```{r}
 set.seed(1332)
 batting_cv_old <- vfold_cv(train_old, v = 10)
@@ -728,6 +533,8 @@ ridge_tune_old <- tune_grid(ridge_model_old,
                       grid = grid_regular(penalty(range = c(-2, 2)), levels = 50))
 ```
 
+The desired tuning parameters are pulled from the model.
+
 ```{r tune model}
 ridge_tune_old |>
   collect_metrics() |>
@@ -735,6 +542,8 @@ ridge_tune_old |>
   ggplot(mapping = aes(x = penalty, y = mean)) + geom_point() + geom_line() +
   scale_x_log10()
 ```
+
+The model is then finalized.
 
 ```{r get lambda from the tuned model}
 ridge_best_old <- ridge_tune_old |>
@@ -750,6 +559,8 @@ ridge_wflow_final_old <- ridge_wflow_old |>
 ridge_wflow_final_old <- fit(ridge_wflow_final_old, data=train_old) 
 ridge_wflow_final_old
 ```
+
+The predictions are made and a calibration plot is made to make sure that the model works.
 
 ```{r add lambda to workflow}
 ridge_pred_check_old <- ridge_wflow_final_old |>
@@ -773,6 +584,7 @@ ggplot(df, aes(x = .pred, y = Salary_ZScore)) +
   theme_minimal()
 ```
 
+Now, the finals pieces of the model are computed.
 
 ```{r run model with train data}
 ridge_fit_old <- ridge_wflow_final_old |>
@@ -810,21 +622,6 @@ rmse(predictions_ridge_old, truth = Salary_ZScore, estimate = .pred)
 ```
 
 ```{r}
-predictions_ridge_old_new <- ridge_fit_old |>
-  broom::augment(new_data = test_new)
-predictions_ridge_old_new |>
-  dplyr::select(Name,
-                Salary_ZScore,
-    
-    everything()
-)
-
-rmse(predictions_ridge_old_new, truth = Salary_ZScore, estimate = .pred)
-
-```
-
-
-```{r}
 ridge_model_new <- linear_reg(mode = "regression", engine = "glmnet",
                           penalty = tune(), # let's tune the lambda penalty term
                           mixture = 0) # mixture = 0 specifies pure ridge regression
@@ -832,6 +629,8 @@ ridge_model_new <- linear_reg(mode = "regression", engine = "glmnet",
 ridge_wflow_new <- workflow() |>
   add_model(ridge_model_new)
 ```
+
+The same process is repeated for the 'new' model. First with the recipe.
 
 ```{r}
 ridge_recipe_new <- recipe(
@@ -846,6 +645,8 @@ ridge_wflow_new <- ridge_wflow_new |>
   add_recipe(ridge_recipe_new)
 ```
 
+Then, the new model is tuned and cross validated.
+
 ```{r}
 set.seed(1332)
 batting_cv_new <- vfold_cv(train_new, v = 10)
@@ -856,6 +657,8 @@ ridge_tune_new <- tune_grid(ridge_model_new,
                       grid = grid_regular(penalty(range = c(-1, 2.5)), levels = 50))
 ```
 
+The metrics are collected.
+
 ```{r}
 ridge_tune_new |>
   collect_metrics() |>
@@ -863,6 +666,8 @@ ridge_tune_new |>
   ggplot(mapping = aes(x = penalty, y = mean)) + geom_point() + geom_line() +
   scale_x_log10()
 ```
+
+The workflow is now updated with the new 'rmse' value.
 
 ```{r}
 ridge_best_new <- ridge_tune_new |>
@@ -877,6 +682,8 @@ ridge_wflow_final_new <- ridge_wflow_new |>
 
 ridge_wflow_final_new <- fit(ridge_wflow_final_new, data=train_new) 
 ```
+
+The predictions are made.
 
 ```{r}
 ridge_pred_check_new <- ridge_wflow_final_new |>
@@ -900,6 +707,7 @@ ggplot(df, aes(x = .pred, y = Salary_ZScore)) +
   theme_minimal()
 ```
 
+The training data is fit.
 
 ```{r}
 ridge_fit_new <- ridge_wflow_final_new |>
@@ -907,17 +715,23 @@ ridge_fit_new <- ridge_wflow_final_new |>
 ridge_fit_new
 ```
 
+The lambda values are plotted.
+
 ```{r}
 ridge_fit_new |>
   extract_fit_engine() |>
   plot(xvar = "lambda", label = TRUE)
 ```
 
+The updated co-efficients are added.
+
 ```{r}
 ridge_coef_new <- ridge_fit_new |>
   broom::tidy()
 ridge_coef_new
 ```
+
+The predictions are made.
 
 ```{r}
 predictions_ridge_new <- ridge_fit_new |>
@@ -927,6 +741,25 @@ predictions_ridge_new |>
     Name,
     Salary_ZScore, 
     .pred,
+    everything()
+)
+
+```
+
+## Experiment
+
+In this experiment, the test set from the 'new' era will be placed into the 'old' model and vice versa to see, which model predicts larger salary z_score values. 
+
+predictions_ridge_old_new will be the 'old model' with 'new data'
+predictions_ridge_new will be the 'new model' with the 'new data'
+
+```{r}
+predictions_ridge_old_new <- ridge_fit_old |>
+  broom::augment(new_data = test_new)
+predictions_ridge_old_new |>
+  dplyr::select(Name,
+                Salary_ZScore,
+    
     everything()
 )
 
@@ -940,8 +773,13 @@ predictions_ridge_old_new |>
 
 rmse(predictions_ridge_new, truth = Salary_ZScore, estimate = .pred)
 rmse(predictions_ridge_old_new, truth = Salary_ZScore, estimate = .pred)
+
+
+
 ```
 
+predictions_ridge_new_old will be the 'new model' with the 'old data'
+predictions_ridge_old will be the 'old model' with the 'old data'
 
 ```{r}
 predictions_ridge_new_old <- ridge_fit_new |>
@@ -964,21 +802,11 @@ predictions_ridge_old |>
 rmse(predictions_ridge_new_old, truth = Salary_ZScore, estimate = .pred)
 ```
 
-Lastly, what I did was compare the old model to the new model. We did this by plugging the test_old into both models to see which model predicted a higher value and we also plugged the test_new into both models to see which model predicted the higher values. As it turned out, there was a difference between the models and the older model predicted higher salary z-scores for both models indicating that the older players are predicted to be payed more than the new players thus showing that there is a significant pay disparity between the older group of players during the steroid era and the newer group of players.
+As it turns out, there is a difference between the models and the older model predicts higher salary z-scores for both models indicating that the older players are predicted to be payed more than the new players thus showing that there is a pay disparity between the older group of players during the steroid era and the newer group of players.
 
-Examples of some of these numbers
+Now, I will check for the significance of this disparity to see if any conclusions can be drawn from this model by conducting a two-sample t-test.
 
-Albert Pujoles 2002 (Old model prediction: 0.26) (New model prediction: 0.14)
-Albert Pujoles 2008 (Old model prediction: 0.79) (New model prediction: 0.74)
-Albert Pujoles 2009 (Old model prediction: 1.26) (New model prediction: 1.07)
-Albert Pujoles 2015 (Old model prediction: 1.29) (New model prediction: 0.99)
-Albert Pujoles 2016 (Old model prediction: 1.24) (New model prediction: 1.02)
-
-Alex Rodriguez 2003 (Old model prediction: 0.95) (New model prediction: 0.82)
-Alex Rodriguez 2006 (Old model prediction: 0.93) (New model prediction: 0.84)
-Alex Rodriguez 2008 (Old model prediction: 0.95) (New model prediction: 0.92)
-
-While this is merely to illustrate data that I saw using a basic non-mathematical eye test, the first thing that caught my eye was that I saw the old model was consistently higher than the new model for the top players in the league. I decided to construct a two-sided t-test to see if I could produce the model that I was looking for.
+First it will judge based on the 'new data'
 
 ```{r}
 groupA<-predictions_ridge_old_new$.pred
@@ -989,21 +817,23 @@ t.test(groupA, groupB, var.equal = FALSE)
 
 ```
 
+Then, it will judge based on the 'old data'
+
 ```{r}
 group1<-predictions_ridge_old$.pred
 group2<-predictions_ridge_new_old$.pred
 
 t.test(group1, group2, var.equal = FALSE)
 ```
-However, upon further inspection of the entire dataset and not just the outliers, we see in a two sample t.test that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old dataset and the new dataset have no significant difference in stats but adjusting for inflation no significant differences in salaries as well.
 
+Upon further investigation, the two sample t.test shows that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old data set and the new data set have no significant difference in stats but adjusting for inflation no significant differences in salaries as well. With p-values of .35 and .23, we can conclude that there is most likely a weak correlation between old players and higher salaries but not anything conclusive enough to overturn the null hypothesis.
 
 ## Insights
 
-I saw that the model did hint at a slight possibility that there was a marginal difference even though we cannot reject the null hypothesis. That being said, there are a few takeaways from this experiment that I gathered. One is that there is a significant difference in baseball between the top 5% of hitters and average league hitters. The salaries are so favored for the best players that they tend to see bigger number than the rest of the league anyway so it isn't probably very useful to the league as a whole. 
+I saw that the model did hint at a possibility that there was a marginal difference even though we cannot reject the null hypothesis. That being said, there are a few takeaways from this experiment that I gathered. One is that the distributions of the batting statistics across the board for both era's are very similar at each percentile range. The players are very consistently producing a very similar distribution of HR, BA, etc year after year. Also, the salaries are very skewed for the league best players and the best players as expected would receive the highest pay.
 
 ### Limitations and Future Work
 
-The clear limitation to this project would be the overall limited-ness of the salary database. As mentioned previously, there was not a very large data set for salaries since they only went back to the 1980s.
+The clear limitation to this project would be the overall limited-ness of the salary database. As mentioned previously, there was not a very large data set for salaries since they only went back to the 1980s. There was also no clear distinction of the salary cap of each team during this time and no mentions of a player getting payed more because he played for the Yankees for example. Future work could include just looking at the top few teams in the game to separate this dataset even more to account for the fact that the most valuable teams will pay their players the most money.
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

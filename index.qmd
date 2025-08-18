@@ -1,9 +1,9 @@
 ---
-title: "Baseball Analytics"
-subtitle: "Comparing salaries from different eras"
+title: "Statistics Final Project"
+subtitle: "Comparing Baseball Salaries"
 # 'nameofphoto.jpg' photo by Person Last name on website.org
 #https://https://kids.nationalgeographic.com/animals/birds/facts/mallard-duck
-#image: "profile.jpg"
+image: profile.jpg
 #about: #https://websitename_name_html
   #template: jolla
   #execute: 
@@ -12,10 +12,8 @@ subtitle: "Comparing salaries from different eras"
        # text:
        # href:
 
-
-
 ---
 
+Math 437
 
-Brian's website
-https://websitename_name_html
+
