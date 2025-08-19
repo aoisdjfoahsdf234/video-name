@@ -13,6 +13,9 @@ website:
 
 format:
   html:
+    fontcolor: "darkblue"
+    backgroundcolor: "#eeffee"
+    mainfont: "monospace"
     theme: cosmo
     css: styles.css
     toc: true
