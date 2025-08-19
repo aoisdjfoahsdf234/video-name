@@ -3,8 +3,8 @@ title: "Statistics Final Project"
 subtitle: "Comparing Baseball Salaries"
 # 'nameofphoto.jpg' photo by Person Last name on website.org
 #https://https://kids.nationalgeographic.com/animals/birds/facts/mallard-duck
-image: profile.jpg
 #about: #https://websitename_name_html
+image: profile.jpg
   #template: jolla
   #execute: 
     #links: 
