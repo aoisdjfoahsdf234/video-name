@@ -8,9 +8,41 @@ date: "2025-05-13"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Motivation or Context
+
+Viewing baseball in recent years has produced so many incredible moments that I am naturally drawn to use baseball as subject matter for this project. I have watched the sport for a very long time, and my primary piece of curiosity comes from an extension of the HR. As it is known to any person remotely involved in baseball, the use of illegal performance enhancing anabolic steroids to make players stronger so that they can hit the ball further has been a part of the game for over 100 years when Babe Ruth used steroids derived from sheep to boost his home run numbers. 
+
+## Main Question
+
+The sport has definitely had influxes throughout its existence and there have been more egregious examples of cheating than others, particularly Barry Bonds. This led me to wonder, do salaries go up when these influxes of steroids go up? This would make sense since hr's sell tickets and perhaps some of the most astronomical HR numbers have occurred during this point. So I wanted to compare the salaries of two eras (1985-2000) and (2001-2016) in order to understand if there were any era's that were being paid more relative to the league average of previous years. This would prove difficult since this would have to factor inflation, but my main quest is to see if there were any salary changes during two 15 year intervals around the time where steroids spiked.
+
+Packages Used
+
+```{r}
+library(Lahman)
+library(tidyverse)
+library(tidymodels)
+library(corrplot)
+library(ggplot2)
+```
+
+
+Tidyverse/Tidy models - These packages provided easier and simpler code for statistical modeling project due to their build-in functions specifically built in for specific functions that are simplified for the user such as cross-validation, knn, ridge regression, etc.
+
+Corrplot - specific functions that create a correlation matrix and visually represent it
+
+Ggplot2 - creates plots that I will use to see the calibration of my model
+
+
+
+Data Used 
+
+The Lahman dataset is a data set created by Sean Lahman, which is the most comprehensive data set ever assembled with baseball stats going back over 100 years. In this data set, every season from almost every contributing pitcher and batter were recorded to show the tallies for the seasons that these players had. These include the full list of counting stats for players such as 'At Bats', 'Strikeouts', 'Team', 'Age', 'RBI', 'BB', 'IBB', 'Hits', etc. Due to the large size of the data set as well as the myriad of different baseball metrics that are used, it remains as one of the largest and most comprehensive baseball data sets available online today.
+
+
 ## Data Limitations
 
-Due to the size of the Salary database, I was only able to look at the years from 1985-2016.
+Due to the size of the Salary database, I was only able to look at the years from 1985-2016. All year prior to 1985 were omitted and I was limited with the range of year that I was given.
 
 
 ## Exploratory Data Analysis
@@ -18,10 +50,6 @@ Due to the size of the Salary database, I was only able to look at the years fro
 After downloading the tidy packages and my baseball data set, the first thing to do is define the eras of baseball. Since the salary database only goes back to 1985, the eras were divided into 15 year windows from 1985-2000 and 2001-2016. Since creating each dataset takes multiple steps, the 1985-2000 called 'old' will be defined first.
 
 ```{r}
-library(Lahman)
-library(tidyverse)
-library(tidymodels)
-
 salaries <- Salaries |>
   dplyr::select(playerID, yearID, teamID, salary)
 peopleInfo <- People |>
@@ -175,22 +203,24 @@ bat_old_proto <- bat_old_proto |>
   )
 ```
 
-Now that PC_Score is added to the data set, adding the salary variable will come next. Due to inflation, the salary variable will be standardized into a Salary_ZScore.
+Now that PC_Score is added to the data set, adding the salary variable will come next. Due to inflation, the salary variable will be standardized into a Salary_ZScore. Since the graph of the salary histogram distribution was not originally a normal distribution, I decided to change the salary variable to 1/(salary^(1/8)) by experimenting with different exponents of salary to find an exponent that would turn the bat_old_proto into something resembling a normal distribution, which in this case is (1/8).
 
 ```{r}
-bat_old <- bat_old_proto |>
+bat_old_proto_2 <- bat_old_proto |>
   group_by(Year) |>
-  mutate(Salary_ZScore = scale(salary) |> as.vector()) |>
+  mutate(Salary_new = 1/salary^(1/8) |> as.vector()) |>
   ungroup()
+hist(bat_old_proto_2$Salary_new)
+bat_old <- bat_old_proto_2 |>
+  group_by(Year) |>
+  mutate(Salary_ZScore = scale(Salary_new) |> as.vector()) |>
+  ungroup()
+
 ```
 
 Then repeating this process, the second data set for players from 2001-2016 are now included into a data set called 'new'.
 
 ```{r}
-library(Lahman)
-library(tidyverse)
-library(tidymodels)
-
 salaries <- Salaries %>%
   dplyr::select(playerID, yearID, teamID, salary)
 peopleInfo <- People %>%
@@ -316,12 +346,18 @@ bat_new_proto <- bat_new_proto |>
   )
 ```
 
-Standardizing salary.
+Standardizing salary after changing Salary_new to 1/salary^(1/8)
 
 ```{r}
-bat_new <- bat_new_proto |>
+bat_new_proto_2 <- bat_new_proto |>
   group_by(Year) |>
-  mutate(Salary_ZScore = scale(salary) |> as.vector()) |>
+  mutate(Salary_new = 1/salary^(1/8) |> as.vector()) |>
+  ungroup()
+hist(bat_new_proto_2$Salary_new)
+
+bat_new <- bat_new_proto_2 |>
+  group_by(Year) |>
+  mutate(Salary_ZScore = scale(Salary_new) |> as.vector()) |>
   ungroup()
 
 pca_tidy_new <- tidy(pca_prep_new, 3, type = "coef") # tidy step 3 - the PCA step
@@ -476,6 +512,18 @@ corrplot(BLINGO, method = "circle", type = "upper",
 
 ```
 
+```{r}
+plot(FLINGO$PC_score, FLINGO$PA)
+plot(FLINGO$OPS, FLINGO$BA)
+plot(FLINGO$PC_score, FLINGO$OPS)
+plot(FLINGO$PC_score, FLINGO$BA)
+plot(FLINGO$OPS, FLINGO$PA)
+plot(FLINGO$Salary_new, FLINGO$age)
+plot(FLINGO$BA, FLINGO$SORate)
+```
+
+The distribution for PC_score and PA is logarithmic and so a linear correlation plot would be misleading. The rest of the variables appear to be linear but there are non that I want to use as part of my ridge regression model because of the intel on the players that I would be lacking.
+
 ## Modeling
 
 Now to actually look at the salary variable in a ridge regression model, first the old and new data sets will be split into 4 data sets called test_old, test_new, train_old, and train_new.
@@ -495,6 +543,12 @@ train_new <- bat_new[indices_new, ]
 ```
 
 First, the ridge model for the old data set is created below.
+
+How Does Ridge Regression Work?
+
+Regression creates a regularized linear model for the target variable of interest and it will do this in order to determine whether or not there is a significant squared error term. If the square error term is significant, ridge regression will provide a penalty to that variable's coefficient potentially shrinking it close to zero or removing it all together. This way only variables that are seen as reliable and accurate are used in the construction of our model.
+
+RMSE is used instead of other squared errors because it is in the same units as y making it more in alignment with the variable of interest.
 
 ```{r make model using linear regression}
 ridge_model_old <- linear_reg(mode = "regression", engine = "glmnet",
@@ -707,6 +761,8 @@ ggplot(df, aes(x = .pred, y = Salary_ZScore)) +
   theme_minimal()
 ```
 
+My calibration plot shows that the model follows a cubic distribution and it is predicting values that fit the curve and is more or less reliable in this regard.
+
 The training data is fit.
 
 ```{r}
@@ -826,7 +882,7 @@ group2<-predictions_ridge_new_old$.pred
 t.test(group1, group2, var.equal = FALSE)
 ```
 
-Upon further investigation, the two sample t.test shows that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old data set and the new data set have no significant difference in stats but adjusting for inflation no significant differences in salaries as well. With p-values of .35 and .23, we can conclude that there is most likely a weak correlation between old players and higher salaries but not anything conclusive enough to overturn the null hypothesis.
+Upon further investigation, the two sample t.test shows that there is not enough evidence to support the alternative hypothesis that there is a difference of means and thus we conclude not only that the players in the old data set and the new data set have no significant difference in stats but adjusting for inflation no significant differences in salaries as well. With p-values of .13 and .09, we can conclude that there is most likely a mild correlation between old players and higher salaries but not anything conclusive enough to overturn the null hypothesis.
 
 ## Insights
 
